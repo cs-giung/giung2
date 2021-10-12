@@ -53,7 +53,7 @@ def default_setup(cfg, args):
         args (argparse.NameSpace)
     """
     output_dir = cfg.OUTPUT_DIR
-    if os.path.exists(output_dir) and not args.eval_only:
+    if os.path.exists(output_dir):
         raise AssertionError(
             f"Output directory already exsits: {output_dir}"
         )
