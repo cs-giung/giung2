@@ -13,10 +13,6 @@ from tabulate import tabulate
 
 
 from giung2.config import get_cfg
-from giung2.evaluation import (
-    evaluate_acc, evaluate_nll, evaluate_bs, evaluate_ece,
-    get_optimal_temperature, compute_ent, compute_kld,
-)
 from giung2.engine import launch, create_ddp_model, default_setup
 from giung2.engine.utils import synchronize, get_rank
 from giung2.data.build import build_dataloaders
@@ -99,102 +95,6 @@ def train(args, cfg, logger, dataloaders, model):
                     logger.info(f"[Checkpoint Epoch {epoch_idx}] Save {bestname}")
 
 
-@torch.no_grad()
-def test(args, cfg, logger, dataloaders, model):
-
-    # load the best checkpoint
-    if cfg.MODEL.WEIGHTS == "":
-        cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "best_acc1.pth.tar")
-
-    if not os.path.exists(cfg.MODEL.WEIGHTS):
-        logger.info("[Evaluation] Skip evaluation since it failed to find {}".format(cfg.MODEL.WEIGHTS))
-        return 0
-
-    logger.info("[Evaluation] Load weights from {}".format(cfg.MODEL.WEIGHTS))
-    model_state_dict = torch.load(
-        cfg.MODEL.WEIGHTS, map_location=model.device
-    )["model_state_dict"]
-    model.load_state_dict(model_state_dict)
-
-    # full evaluation
-    model.eval()
-
-    # make predictions on validation set
-    val_predictions = []
-    val_true_labels = []
-    for _, (images, labels) in enumerate(dataloaders["val_loader"], start=1):
-        outputs = model(images, labels)
-        confidences = outputs["confidences"].cpu()
-        val_predictions.append(confidences)
-        val_true_labels.append(labels.cpu())
-    val_predictions = torch.cat(val_predictions)
-    val_true_labels = torch.cat(val_true_labels)
-    t_opt = get_optimal_temperature(val_predictions.mean(1), val_true_labels)
-
-    # make predictions on testing set
-    tst_predictions = []
-    tst_true_labels = []
-    for _, (images, labels) in enumerate(dataloaders["tst_loader"], start=1):
-        outputs = model(images, labels)
-        confidences = outputs["confidences"].cpu()
-        tst_predictions.append(confidences)
-        tst_true_labels.append(labels.cpu())
-    tst_predictions = torch.cat(tst_predictions)
-    tst_true_labels = torch.cat(tst_true_labels)
-
-    # standard metrics
-    log_str = "[Evaluation] Standard metrics:\n"
-    log_str += tabulate([
-        (
-            "@Valid",
-            evaluate_acc(val_predictions.mean(1), val_true_labels),
-            evaluate_nll(val_predictions.mean(1), val_true_labels),
-            evaluate_bs( val_predictions.mean(1), val_true_labels),
-            evaluate_ece(val_predictions.mean(1), val_true_labels),
-            compute_ent( val_predictions.mean(1)),
-            compute_kld( val_predictions),
-        ),
-        (
-            "@Test",
-            evaluate_acc(tst_predictions.mean(1), tst_true_labels),
-            evaluate_nll(tst_predictions.mean(1), tst_true_labels),
-            evaluate_bs( tst_predictions.mean(1), tst_true_labels),
-            evaluate_ece(tst_predictions.mean(1), tst_true_labels),
-            compute_ent( tst_predictions.mean(1)),
-            compute_kld( tst_predictions),
-        ),
-    ], headers=["Split", "ACC", "NLL", "BS", "ECE", "ENT", "KLD"])
-    logger.info(log_str + "\n")
-
-    # calibrated metrics
-    val_ts_confidences = torch.softmax(
-        torch.log(1e-12 + val_predictions.mean(1)) / t_opt, dim=1
-    )
-    tst_ts_confidences = torch.softmax(
-        torch.log(1e-12 + tst_predictions.mean(1)) / t_opt, dim=1
-    )
-    log_str = f"[Evaluation] Calibrated metrics (TS={t_opt}):\n"
-    log_str += tabulate([
-        (
-            "@Valid",
-            evaluate_acc(val_ts_confidences, val_true_labels),
-            evaluate_nll(val_ts_confidences, val_true_labels),
-            evaluate_bs( val_ts_confidences, val_true_labels),
-            evaluate_ece(val_ts_confidences, val_true_labels),
-            compute_ent( val_ts_confidences),
-        ),
-        (
-            "@Test",
-            evaluate_acc(tst_ts_confidences, tst_true_labels),
-            evaluate_nll(tst_ts_confidences, tst_true_labels),
-            evaluate_bs( tst_ts_confidences, tst_true_labels),
-            evaluate_ece(tst_ts_confidences, tst_true_labels),
-            compute_ent( tst_ts_confidences),
-        ),
-    ], headers=["Split", "ACC", "NLL", "BS", "ECE", "ENT", "KLD"])
-    logger.info(log_str + "\n")
-
-
 def run_epoch(args, cfg, epoch_idx, model, dataloaders, logger,
               optimizer=None, scheduler=None, is_train=False):
 
@@ -268,6 +168,7 @@ def run_epoch(args, cfg, epoch_idx, model, dataloaders, logger,
             )
             logger.info(log_str)
 
+    # logging
     log_dict = {
         "epoch_idx": epoch_idx,
         "trn/loss" if is_train else "val/loss": loss_meter["avg"],
@@ -329,12 +230,8 @@ def main(args, cfg):
     wandb.watch(model)
 
     # train model
-    if not args.eval_only:
-        train(args, cfg, logger, dataloaders, model)
-
-    # evaluate model
-    if get_rank() == 0:
-        test(args, cfg, logger, dataloaders, model)
+    train(args, cfg, logger, dataloaders, model)
+    logger.info("Finished.")
 
 
 if __name__ == "__main__":
@@ -343,8 +240,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-file", default=None, required=True, metavar="FILE",
                         help="path to config file")
-    parser.add_argument("--eval-only", default=False, action="store_true",
-                        help="evaluate the model with MODEL.WEIGHTS (or 'best_acc1.pth.tar')")
     parser.add_argument("--dist-url", default="tcp://127.0.0.1:12345", metavar="URL",
                         help="URL for pytorch distributed backend")
     parser.add_argument("--checkpoint-last-only", default=False, action="store_true",
