@@ -234,7 +234,10 @@ def main(args, cfg):
 
     # train model
     train(args, cfg, logger, dataloaders, model)
+
+    # finished
     logger.info("Finished.")
+    wandb.finish()
 
 
 if __name__ == "__main__":
