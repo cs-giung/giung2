@@ -33,6 +33,17 @@ def build_optimizer(cfg: CfgNode, model: nn.Module) -> Optimizer:
 
         optimizer, params = build_sgd_optimizer(model, **kwargs)
 
+        # Adaptive Gradient Clipping (AGC)
+        if cfg.SOLVER.OPTIMIZER.AGC.ENABLED:
+            optimizer = AGC(
+                params         = params,
+                base_optimizer = optimizer,
+                clipping       = cfg.SOLVER.OPTIMIZER.AGC.LAMBDA,
+                eps            = cfg.SOLVER.OPTIMIZER.AGC.EPSILON,
+                model          = model if cfg.SOLVER.OPTIMIZER.AGC.IGNORED_PARAMS else None,
+                ignored_params = cfg.SOLVER.OPTIMIZER.AGC.IGNORED_PARAMS,
+            )
+
     else:
         raise NotImplementedError(
             f"Unknown cfg.SOLVER.OPTIMIZER.NAME = \"{name}\""
