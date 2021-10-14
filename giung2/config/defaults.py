@@ -58,6 +58,22 @@ _C.MODEL.DROPOUT.ENABLED = False
 _C.MODEL.DROPOUT.DROP_PROBABILITY = 0.5
 
 # ---------------------------------------------------------------------- #
+# SpatialDropout
+# ---------------------------------------------------------------------- #
+_C.MODEL.SPATIAL_DROPOUT = CfgNode()
+_C.MODEL.SPATIAL_DROPOUT.ENABLED = False
+_C.MODEL.SPATIAL_DROPOUT.DROP_PROBABILITY = 0.5
+
+# ---------------------------------------------------------------------- #
+# DropBlock
+# ---------------------------------------------------------------------- #
+_C.MODEL.DROP_BLOCK = CfgNode()
+_C.MODEL.DROP_BLOCK.ENABLED = False
+_C.MODEL.DROP_BLOCK.DROP_PROBABILITY = 0.5
+_C.MODEL.DROP_BLOCK.BLOCK_SIZE = 3
+_C.MODEL.DROP_BLOCK.USE_SHARED_MASKS = False
+
+# ---------------------------------------------------------------------- #
 # Image Normalization
 # ---------------------------------------------------------------------- #
 # Values to be used for image normalization (RGB order)

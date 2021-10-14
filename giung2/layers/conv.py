@@ -8,6 +8,8 @@ __all__ = [
     "Conv2d",
     "Conv2d_BatchEnsemble",
     "Conv2d_Dropout",
+    "Conv2d_SpatialDropout",
+    "Conv2d_DropBlock",
 ]
 
 
@@ -119,4 +121,69 @@ class Conv2d_Dropout(Conv2d):
         if kwargs.pop("is_drop", False):
             r = self._get_masks(x)
             x = r * x / (1.0 - self.drop_p)
+        return super().forward(x, **kwargs)
+
+
+class Conv2d_SpatialDropout(Conv2d):
+    
+    def __init__(self, *args, **kwargs) -> None:
+        drop_p = kwargs.pop("drop_p", None)
+        super(Conv2d_SpatialDropout, self).__init__(*args, **kwargs)
+        self.drop_p = drop_p
+
+    def _get_masks(self, x: torch.Tensor, seed: int = None) -> torch.Tensor:
+        # TODO: handling random seed...
+        probs = torch.ones_like(x[:, :, 0, 0]) * (1.0 - self.drop_p)
+        masks = torch.bernoulli(probs)[:, :, None, None]
+        return masks
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        if kwargs.pop("is_drop", False):
+            r = self._get_masks(x)
+            x = r * x / (1.0 - self.drop_p)
+        return super().forward(x, **kwargs)
+
+
+class Conv2d_DropBlock(Conv2d):
+    
+    def __init__(self, *args, **kwargs) -> None:
+        drop_p = kwargs.pop("drop_p", None)
+        block_size = kwargs.pop("block_size", None)
+        use_shared_masks = kwargs.pop("use_shared_masks", None)
+        super(Conv2d_DropBlock, self).__init__(*args, **kwargs)
+        self.drop_p = drop_p
+        self.block_size = block_size
+        self.use_shared_masks = use_shared_masks
+
+    def _get_masks(self, x: torch.Tensor, seed: int = None) -> torch.Tensor:
+        # TODO: handling random seed...
+        
+        gamma = self.drop_p / (
+            self.block_size ** 2
+        ) * (x.size(2) ** 2) / (
+            (x.size(2) - self.block_size + 1) ** 2
+        )
+        
+        if self.use_shared_masks:
+            probs = torch.ones_like(x[:, 0, :, :]) * gamma
+            probs = probs[:, None, :, :]
+        else:
+            probs = torch.ones_like(x) * gamma
+
+        masks = torch.bernoulli(probs)
+        masks = nn.functional.max_pool2d(
+            input       = masks,
+            kernel_size = self.block_size,
+            stride      = 1,
+            padding     = self.block_size // 2,
+        )
+        if self.block_size % 2 == 0:
+            masks = masks[:, :, :-1, :-1]
+        masks = 1.0 - masks
+        return masks
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        if kwargs.pop("is_drop", False):
+            r = self._get_masks(x)
+            x = r * x * r.numel() / r.sum()
         return super().forward(x, **kwargs)

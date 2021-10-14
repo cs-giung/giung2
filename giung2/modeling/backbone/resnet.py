@@ -264,6 +264,26 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
         kwargs = {
             "drop_p": cfg.MODEL.DROPOUT.PROBABILITY,
         }
+    elif _conv_layers == "Conv2d_SpatialDropout":
+        if cfg.MODEL.SPATIAL_DROPOUT.ENABLED is False:
+            raise AssertionError(
+                f"Set MODEL.SPATIAL_DROPOUT.ENABLED=True to use {_conv_layers}"
+            )
+        conv_layers = Conv2d_SpatialDropout
+        kwargs = {
+            "drop_p": cfg.MODEL.SPATIAL_DROPOUT.DROP_PROBABILITY,
+        }
+    elif _conv_layers == "Conv2d_DropBlock":
+        if cfg.MODEL.DROP_BLOCK.ENABLED is False:
+            raise AssertionError(
+                f"Set MODEL.DROP_BLOCK.ENABLED=True to use {_conv_layers}"
+            )
+        conv_layers = Conv2d_DropBlock
+        kwargs = {
+            "drop_p": cfg.MODEL.DROP_BLOCK.DROP_PROBABILITY,
+            "block_size": cfg.MODEL.DROP_BLOCK.BLOCK_SIZE,
+            "use_shared_masks": cfg.MODEL.DROP_BLOCK.USE_SHARED_MASKS,
+        }
     else:
         raise NotImplementedError(
             f"Unknown MODEL.BACKBONE.RESNET.CONV_LAYERS: {_conv_layers}"
