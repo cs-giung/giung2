@@ -77,6 +77,15 @@ def build_softmax_classifier(cfg: CfgNode) -> nn.Module:
                 "init_values": cfg.MODEL.BATCH_ENSEMBLE.GAMMA_INITIALIZER.VALUES,
             },
         }
+    elif _linear_layers == "Linear_Dropout":
+        if cfg.MODEL.DROPOUT.ENABLED is False:
+            raise AssertionError(
+                f"Set MODEL.DROPOUT.ENABLED=True to use {_linear_layers}"
+            )
+        linear_layers = Linear_Dropout
+        kwargs = {
+            "drop_p": cfg.MODEL.DROPOUT.DROP_PROBABILITY,
+        }
     else:
         raise NotImplementedError(
             f"Unknown MODEL.CLASSIFIER.SOFTMAX_CLASSIFIER.LINEAR_LAYERS: {_linear_layers}"

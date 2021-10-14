@@ -7,6 +7,7 @@ from .utils import initialize_tensor
 __all__ = [
     "Conv2d",
     "Conv2d_BatchEnsemble",
+    "Conv2d_Dropout",
 ]
 
 
@@ -99,3 +100,23 @@ class Conv2d_BatchEnsemble(Conv2d):
         if self.padding_mode != 'zeros':
             s += ', padding_mode={padding_mode}'
         return s.format(**self.__dict__)
+
+
+class Conv2d_Dropout(Conv2d):
+    
+    def __init__(self, *args, **kwargs) -> None:
+        drop_p = kwargs.pop("drop_p", None)
+        super(Conv2d_Dropout, self).__init__(*args, **kwargs)
+        self.drop_p = drop_p
+
+    def _get_masks(self, x: torch.Tensor, seed: int = None) -> torch.Tensor:
+        # TODO: handling random seed...
+        probs = torch.ones_like(x) * (1.0 - self.drop_p)
+        masks = torch.bernoulli(probs)
+        return masks
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        if kwargs.pop("is_drop", False):
+            r = self._get_masks(x)
+            x = r * x / (1.0 - self.drop_p)
+        return super().forward(x, **kwargs)

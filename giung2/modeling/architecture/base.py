@@ -52,6 +52,7 @@ class ClassificationModelBase(nn.Module):
             self,
             images: torch.Tensor,
             labels: torch.Tensor = None,
+            **kwargs,
         ) -> Dict[str, torch.Tensor]:
 
         outputs = dict()
@@ -62,7 +63,7 @@ class ClassificationModelBase(nn.Module):
         outputs["labels"] = labels
 
         # make predictions
-        outputs.update(self.backbone(outputs["images"]))
-        outputs.update(self.classifier(outputs["features"]))
+        outputs.update(self.backbone(outputs["images"], **kwargs))
+        outputs.update(self.classifier(outputs["features"], **kwargs))
 
         return outputs

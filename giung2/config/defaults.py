@@ -51,6 +51,13 @@ _C.MODEL.MIMO.ENABLED = False
 _C.MODEL.MIMO.ENSEMBLE_SIZE = 3
 
 # ---------------------------------------------------------------------- #
+# Dropout
+# ---------------------------------------------------------------------- #
+_C.MODEL.DROPOUT = CfgNode()
+_C.MODEL.DROPOUT.ENABLED = False
+_C.MODEL.DROPOUT.DROP_PROBABILITY = 0.5
+
+# ---------------------------------------------------------------------- #
 # Image Normalization
 # ---------------------------------------------------------------------- #
 # Values to be used for image normalization (RGB order)

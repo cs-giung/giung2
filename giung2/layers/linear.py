@@ -7,6 +7,7 @@ from .utils import initialize_tensor
 __all__ = [
     "Linear",
     "Linear_BatchEnsemble",
+    "Linear_Dropout",
 ]
 
 
@@ -79,3 +80,23 @@ class Linear_BatchEnsemble(Linear):
             self.in_features, self.out_features, self.bias is not None,
             self.ensemble_bias is not None
         )
+
+
+class Linear_Dropout(Linear):
+    
+    def __init__(self, *args, **kwargs) -> None:
+        drop_p = kwargs.pop("drop_p", None)
+        super(Linear_Dropout, self).__init__(*args, **kwargs)
+        self.drop_p = drop_p
+
+    def _get_masks(self, x: torch.Tensor, seed: int = None) -> torch.Tensor:
+        # TODO: handling random seed...
+        probs = torch.ones_like(x) * (1.0 - self.drop_p)
+        masks = torch.bernoulli(probs)
+        return masks
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        if kwargs.pop("is_drop", False):
+            r = self._get_masks(x)
+            x = r * x / (1.0 - self.drop_p)
+        return super().forward(x, **kwargs)

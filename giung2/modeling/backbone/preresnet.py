@@ -283,6 +283,15 @@ def build_preresnet_backbone(cfg: CfgNode) -> nn.Module:
                 "init_values": cfg.MODEL.BATCH_ENSEMBLE.GAMMA_INITIALIZER.VALUES,
             },
         }
+    elif _conv_layers == "Conv2d_Dropout":
+        if cfg.MODEL.DROPOUT.ENABLED is False:
+            raise AssertionError(
+                f"Set MODEL.DROPOUT.ENABLED=True to use {_conv_layers}"
+            )
+        conv_layers = Conv2d_Dropout
+        kwargs = {
+            "drop_p": cfg.MODEL.DROPOUT.DROP_PROBABILITY,
+        }
     else:
         raise NotImplementedError(
             f"Unknown MODEL.BACKBONE.RESNET.CONV_LAYERS: {_conv_layers}"
