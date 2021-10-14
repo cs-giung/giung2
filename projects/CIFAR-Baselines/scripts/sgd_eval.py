@@ -102,7 +102,7 @@ if __name__ == "__main__":
     tst_confidences = torch.softmax(tst_pred_logits, dim=2)
 
     # sizes of ensemble to be evaluated
-    ensemble_sizes = list(range(1, args.ensemble_size, 1)) if args.ensemble_progress else [1, args.ensemble_size,]
+    ensemble_sizes = list(range(1, args.ensemble_size + 1)) if args.ensemble_progress else [1, args.ensemble_size,]
 
     # evaluate standard metrics
     DATA = []
