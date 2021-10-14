@@ -36,8 +36,8 @@ def train(args, cfg, logger, dataloaders, model):
 
     # setup training
     epoch_idx = 0
-    best_acc1 = 0.0
-    best_loss = float("inf")
+    best_acc1, best_acc1_epoch = float( 0.0 ), int( -1 )
+    best_loss, best_loss_epoch = float("inf"), int( -1 )
     while epoch_idx < cfg.SOLVER.NUM_EPOCHS:
 
         # ---------------------------------------------------------------------- #
@@ -85,14 +85,30 @@ def train(args, cfg, logger, dataloaders, model):
                 logger.info(f"[Checkpoint Epoch {epoch_idx}] Save {filename}")
 
                 if is_best_loss:
+                    best_loss_epoch = epoch_idx
                     bestname = os.path.join(cfg.OUTPUT_DIR, "best_loss.pth.tar")
                     shutil.copyfile(filename, bestname)
                     logger.info(f"[Checkpoint Epoch {epoch_idx}] Save {bestname}")
 
                 if is_best_acc1:
+                    best_acc1_epoch = epoch_idx
                     bestname = os.path.join(cfg.OUTPUT_DIR, "best_acc1.pth.tar")
                     shutil.copyfile(filename, bestname)
                     logger.info(f"[Checkpoint Epoch {epoch_idx}] Save {bestname}")
+
+    # log the best achievement
+    log_dict = {
+        "best_acc1"      : best_acc1,
+        "best_acc1_epoch": best_acc1_epoch,
+        "best_loss"      : best_loss,
+        "best_loss_epoch": best_loss_epoch,
+    }
+    log_str = "Summary: best_acc1={:.4f} @ best_acc1_epoch={:d}, best_loss={:.4f} @ best_loss_epoch={:d}".format(
+        log_dict["best_acc1"], log_dict["best_acc1_epoch"], log_dict["best_loss"], log_dict["best_loss_epoch"],
+    )
+    logger.info(log_str)
+    if args.use_wandb and get_rank() == 0:
+        wandb.log(log_dict)
 
 
 def run_epoch(args, cfg, epoch_idx, model, dataloaders, logger,
