@@ -43,20 +43,14 @@ if __name__ == "__main__":
     dataloaders = build_dataloaders(cfg, root="./datasets")
 
     # build model
-    model = build_model(cfg).cuda()
-    model.load_state_dict(
-        torch.load(
-            args.weight_file, map_location="cpu"
-        )["model_state_dict"]
-    )
-    model.eval()
+    model = build_model(cfg).cuda().eval()
 
     # configure path for deep ensembles
     prefix_for_ensemble = os.path.dirname(args.weight_file)
     suffix_for_ensemble = os.path.basename(args.weight_file)
     get_ith_weight_file = lambda idx: os.path.join(
         prefix_for_ensemble + f"_{idx:d}", suffix_for_ensemble
-    )
+    ) if idx > 0 else args.weight_file
 
     # disable grad
     torch.set_grad_enabled(False)
@@ -66,15 +60,18 @@ if __name__ == "__main__":
     pred_logits = []
     for images, labels in tqdm(dataloaders["val_loader"], desc="valid examples", leave=False):
         images = images.cuda()
-        logits = model(images)["logits"][:, None, :].cpu()
         for idx in range(args.ensemble_size):
-            if idx == 0: continue
             model.load_state_dict(
                 torch.load(
                     get_ith_weight_file(idx), map_location="cpu"
                 )["model_state_dict"]
             )
-            logits = torch.cat([logits, model(images)["logits"][:, None, :].cpu()], dim=1)
+            if idx == 0:
+                logits = model(images)["logits"][:, None, :].cpu()
+            else:
+                logits = torch.cat([
+                    logits, model(images)["logits"][:, None, :].cpu()
+                ], dim=1)
         pred_logits.append(logits.cpu())
         true_labels.append(labels.cpu())
     val_pred_logits = torch.cat(pred_logits) # [num_examples, ens_size, num_classes]
@@ -86,15 +83,18 @@ if __name__ == "__main__":
     pred_logits = []
     for images, labels in tqdm(dataloaders["tst_loader"], desc="test examples", leave=False):
         images = images.cuda()
-        logits = model(images)["logits"][:, None, :].cpu()
         for idx in range(args.ensemble_size):
-            if idx == 0: continue
             model.load_state_dict(
                 torch.load(
                     get_ith_weight_file(idx), map_location="cpu"
                 )["model_state_dict"]
             )
-            logits = torch.cat([logits, model(images)["logits"][:, None, :].cpu()], dim=1)
+            if idx == 0:
+                logits = model(images)["logits"][:, None, :].cpu()
+            else:
+                logits = torch.cat([
+                    logits, model(images)["logits"][:, None, :].cpu()
+                ], dim=1)
         pred_logits.append(logits.cpu())
         true_labels.append(labels.cpu())
     tst_pred_logits = torch.cat(pred_logits) # [num_examples, ens_size, num_classes]
@@ -102,7 +102,11 @@ if __name__ == "__main__":
     tst_confidences = torch.softmax(tst_pred_logits, dim=2)
 
     # sizes of ensemble to be evaluated
-    ensemble_sizes = list(range(1, args.ensemble_size + 1)) if args.ensemble_progress else [1, args.ensemble_size,]
+    ensemble_sizes = list(
+        range(1, args.ensemble_size + 1)
+    ) if args.ensemble_progress else list(
+        set([1, args.ensemble_size])
+    )
 
     # evaluate standard metrics
     DATA = []
