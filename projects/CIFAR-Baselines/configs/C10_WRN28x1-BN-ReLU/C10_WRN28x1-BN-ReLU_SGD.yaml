@@ -35,12 +35,13 @@ MODEL:
       NORM_LAYERS: "BatchNorm2d"
       ACTIVATIONS: "ReLU"
   CLASSIFIER:
-    NAME: "build_duq_classifier"
-    DUQ_CLASSIFIER:
+    NAME: "build_softmax_classifier"
+    SOFTMAX_CLASSIFIER:
       FEATURE_DIM: 64
       NUM_CLASSES: 10
-      CENTROID_DIM: 64
-      LENGTH_SCALE: 0.1
+      NUM_HEADS: 1
+      USE_BIAS: True
+      LINEAR_LAYERS: "Linear"
 
 SOLVER:
   NUM_EPOCHS: 200
@@ -65,4 +66,4 @@ NUM_GPUS: 1
 CUDNN_BENCHMARK: False
 CUDNN_DETERMINISTIC: False
 SEED: -1
-OUTPUT_DIR: "./outputs/C10_WRN28x1-BN-ReLU_DUQ/"
+OUTPUT_DIR: "./outputs/C10_WRN28x1-BN-ReLU/SGD/"

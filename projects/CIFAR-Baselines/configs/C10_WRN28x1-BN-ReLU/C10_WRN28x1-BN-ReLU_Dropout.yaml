@@ -1,5 +1,5 @@
 DATASETS:
-  NAME: "CIFAR100"
+  NAME: "CIFAR10"
   # SEED: 42 (unused)
   CIFAR:
     SHUFFLE_INDICES: False
@@ -12,10 +12,13 @@ DATALOADER:
   PIN_MEMORY: False
 
 MODEL:
+  DROPOUT:
+    ENABLED: True
+    DROP_PROBABILITY: 0.01
   META_ARCHITECTURE:
     NAME: "ClassificationModelBase"
-  PIXEL_MEAN: [0.5072, 0.4866, 0.4410,]
-  PIXEL_STD: [0.2673, 0.2564, 0.2760,]
+  PIXEL_MEAN: [0.4915, 0.4821, 0.4464,]
+  PIXEL_STD: [0.2472, 0.2437, 0.2617,]
   BACKBONE:
     NAME: "build_preresnet_backbone"
     RESNET:
@@ -31,20 +34,20 @@ MODEL:
       SHORTCUT: "ProjectionShortcut"
       NUM_BLOCKS: [4, 4, 4,]
       WIDEN_FACTOR: 1
-      CONV_LAYERS: "Conv2d"
+      CONV_LAYERS: "Conv2d_Dropout"
       NORM_LAYERS: "BatchNorm2d"
       ACTIVATIONS: "ReLU"
   CLASSIFIER:
     NAME: "build_softmax_classifier"
     SOFTMAX_CLASSIFIER:
       FEATURE_DIM: 64
-      NUM_CLASSES: 100
+      NUM_CLASSES: 10
       NUM_HEADS: 1
       USE_BIAS: True
-      LINEAR_LAYERS: "Linear"
+      LINEAR_LAYERS: "Linear_Dropout"
 
 SOLVER:
-  NUM_EPOCHS: 200
+  NUM_EPOCHS: 500
   BATCH_SIZE: 128
   VALID_FREQUENCY: 20
   VALID_FINALE: 20
@@ -66,4 +69,4 @@ NUM_GPUS: 1
 CUDNN_BENCHMARK: False
 CUDNN_DETERMINISTIC: False
 SEED: -1
-OUTPUT_DIR: "./outputs/C100_WRN28x1-BN-ReLU_SGD/"
+OUTPUT_DIR: "./outputs/C10_WRN28x1-BN-ReLU/Dropout/"
