@@ -4,7 +4,6 @@ import shutil
 sys.path.append("./")
 
 
-import wandb
 import torch
 import torch.nn.functional as F
 import logging
@@ -107,8 +106,6 @@ def train(args, cfg, logger, dataloaders, model):
         log_dict["best_acc1"], log_dict["best_acc1_epoch"], log_dict["best_loss"], log_dict["best_loss_epoch"],
     )
     logger.info(log_str)
-    if args.use_wandb and get_rank() == 0:
-        wandb.log(log_dict)
 
 
 def run_epoch(args, cfg, epoch_idx, model, dataloaders, logger,
@@ -191,8 +188,6 @@ def run_epoch(args, cfg, epoch_idx, model, dataloaders, logger,
         "trn/acc1" if is_train else "val/acc1": acc1_meter["avg"],
         "trn/acc5" if is_train else "val/acc5": acc5_meter["avg"],
     }
-    if args.use_wandb and get_rank() == 0:
-        wandb.log(log_dict)
 
     log_str = "[{} Epoch {:d}/{:d}] ".format("Train" if is_train else "Valid", epoch_idx, cfg.SOLVER.NUM_EPOCHS)
     log_str += "loss: {:.4e}, acc1: {:.4f}, acc5: {:.4f}".format(
@@ -215,10 +210,6 @@ def main(args, cfg):
 
     default_setup(cfg, args)
     logger = logging.getLogger("giung2")
-
-    if args.use_wandb and get_rank() == 0:
-        wandb.init(dir=cfg.OUTPUT_DIR, project="giung2", entity="cs-giung",)
-        wandb.config.update(args)
 
     # build dataloaders
     dataloaders = build_dataloaders(cfg, root="./datasets")
@@ -245,16 +236,12 @@ def main(args, cfg):
     log_str = "Build networks:\n"
     log_str += str(model)
     logger.info(log_str)
-    if args.use_wandb and get_rank() == 0:
-        wandb.watch(model)
 
     # train model
     train(args, cfg, logger, dataloaders, model)
 
     # finished
     logger.info("Finished.")
-    if args.use_wandb:
-        wandb.finish()
 
 
 if __name__ == "__main__":
@@ -267,8 +254,6 @@ if __name__ == "__main__":
                         help="URL for pytorch distributed backend")
     parser.add_argument("--checkpoint-last-only", default=False, action="store_true",
                         help="save 'checkpoint.pth.tar' as the last checkpoint")
-    parser.add_argument("--use-wandb", default=False, action="store_true",
-                        help="use wandb.ai for logging")
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER,
                         help="modify config options at the end of the command.")
     args = parser.parse_args()
