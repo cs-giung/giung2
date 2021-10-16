@@ -3,9 +3,11 @@
 This project implements existing baseline models on CIFAR dataset.
 Try to report the best performance for each baseline, although it involves cumbersome tuning of hyperparameters.
 
-## CIFAR-10
+## Standard Baselines
 
-### WRN28x1-BN-ReLU
+### WRN28x1-BN-ReLU on CIFAR-10
+
+> All models are trained on the first 45,000 examples of the train split of CIFAR-10; the last 5,000 examples of the train split are used as the validation split. We basically follow the standard data augmentation policy which consists of random cropping of 32 pixels with a padding of 4 pixels and random horizontal flipping.
 
 | Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
 | :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
@@ -18,9 +20,9 @@ Try to report the best performance for each baseline, although it involves cumbe
 | DUQ        | 1     | 0.9284 | 0.2950 | 0.0359 | 0.1031 | 0.0000 | 0.2535 | 0.0082 | 0.2265 | 1.4297 |
 | DUQ-GP     | 1     | 
 
-## CIFAR-100
+### WRN28x1-BN-ReLU on CIFAR-100
 
-### WRN28x1-BN-ReLU
+> All models are trained on the first 45,000 examples of the train split of CIFAR-100; the last 5,000 examples of the train split are used as the validation split. We basically follow the standard data augmentation policy which consists of random cropping of 32 pixels with a padding of 4 pixels and random horizontal flipping.
 
 | Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
 | :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
@@ -29,8 +31,20 @@ Try to report the best performance for each baseline, although it involves cumbe
 | DE-4       | 4     | 0.7499 | 0.8928 | 0.0279 | 0.8834 | 1.0527 | 0.8928 | 0.0316 | 0.9007 | 1.0156 |
 | DE-8       | 8     | 0.7663 | 0.8357 | 0.0528 | 0.9454 | 1.0395 | 0.8301 | 0.0261 | 0.8326 | 0.9039 |
 
-### WRN28x10-BN-ReLU
+### WRN28x10-BN-ReLU on CIFAR-100
+
+> All models are trained on the first 45,000 examples of the train split of CIFAR-100; the last 5,000 examples of the train split are used as the validation split. We basically follow the standard data augmentation policy which consists of random cropping of 32 pixels with a padding of 4 pixels and random horizontal flipping.
 
 | Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
 | :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
 | SGD        | 1     | 0.8050 | 0.8007 | 0.0584 | 0.6338 | -      | 0.7922 | 0.0398 | 0.8383 | 1.1453 |
+
+## Baselines for Bayesian Interpretation
+
+### PR20-FRN-SiLU
+
+> All models are trained on the first 40,960 examples of the train split of CIFAR-10; the last 9,040 examples of the train split are used as the validation split. For a clear Bayesian interpretation of the inference procedure, (1) we do not use any data augmentation, and (2) batch normalization is replaced with filter response normalization.
+
+| Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
+| :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
+| SGD        |
