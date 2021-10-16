@@ -117,10 +117,8 @@ class BasicBlock(nn.Module):
 
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
         out = self.relu1(self.norm1(self.conv1(x,   **kwargs), **kwargs), **kwargs)
-        out = self.relu2(self.norm2(self.conv2(out, **kwargs), **kwargs), **kwargs)
-        out = out + self.shortcut(x, **kwargs)
+        out = self.relu2(self.norm2(self.conv2(out, **kwargs), **kwargs) + self.shortcut(x, **kwargs), **kwargs)
         return out
-
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -159,8 +157,7 @@ class Bottleneck(nn.Module):
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
         out = self.relu1(self.norm1(self.conv1(x,   **kwargs), **kwargs), **kwargs)
         out = self.relu2(self.norm2(self.conv2(out, **kwargs), **kwargs), **kwargs)
-        out = self.relu3(self.norm3(self.conv3(out, **kwargs), **kwargs), **kwargs)
-        out = out + self.shortcut(x, **kwargs)
+        out = self.relu3(self.norm3(self.conv3(out, **kwargs), **kwargs) + self.shortcut(x, **kwargs), **kwargs)
         return out
 
 
