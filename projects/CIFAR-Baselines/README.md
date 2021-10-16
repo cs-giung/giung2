@@ -3,6 +3,13 @@
 This project implements existing baseline models on CIFAR dataset.
 Try to report the best performance for each baseline, although it involves cumbersome tuning of hyperparameters.
 
+## Setup
+
+```
+ln -s ../../giung2/ ./
+ln -s ../../datasets/ ./
+```
+
 ## Standard Baselines
 
 ### WRN28x1-BN-ReLU on CIFAR-10
