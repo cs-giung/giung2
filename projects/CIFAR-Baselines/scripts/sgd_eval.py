@@ -38,6 +38,7 @@ if __name__ == "__main__":
     cfg = get_cfg()
     cfg.merge_from_file(args.config_file, allow_unsafe=True)
     cfg.merge_from_list(args.opts)
+    cfg.NUM_GPUS = 1
 
     # build dataloaders
     dataloaders = build_dataloaders(cfg, root="./datasets")
