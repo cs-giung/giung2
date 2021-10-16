@@ -1,4 +1,4 @@
-Command Line Args: Namespace(config_file='./configs/C10_PR20-FRN-SiLU/C10_PR20-FRN-SiLU_SGD.yaml', weight_file='./outputs/C10_PR20-FRN-SiLU/SGD_20211016/best_acc1.pth.tar', ensemble_size=8, ensemble_progress=True, opts=[])
+Command Line Args: Namespace(config_file='./configs/C10_PR20-FRN-SiLU/C10_PR20-FRN-SiLU_SGD.yaml', weight_file='./outputs/C10_PR20-FRN-SiLU/SGD_20211016/best_acc1.pth.tar', ensemble_size=16, ensemble_progress=True, opts=[])
 
 Standard metrics on test examples:
   # Ens     ACC     NLL     ECE     ENT     KLD
@@ -11,6 +11,14 @@ Standard metrics on test examples:
       6  0.8925  0.3371  0.0166  0.3397  0.4756
       7  0.8922  0.3330  0.0167  0.3448  0.4723
       8  0.8932  0.3302  0.0174  0.3505  0.4706
+      9  0.8938  0.3266  0.0183  0.3531  0.4696
+     10  0.8946  0.3239  0.0206  0.3553  0.4682
+     11  0.8939  0.3204  0.0198  0.3573  0.4668
+     12  0.8957  0.3182  0.0216  0.3593  0.4664
+     13  0.8950  0.3172  0.0210  0.3604  0.4658
+     14  0.8955  0.3165  0.0225  0.3626  0.4661
+     15  0.8965  0.3152  0.0224  0.3645  0.4647
+     16  0.8972  0.3146  0.0218  0.3655  0.4648
 
 Calibrated metrics on test examples:
   # Ens     ACC     NLL     ECE     ENT      TS
@@ -23,4 +31,12 @@ Calibrated metrics on test examples:
       6  0.8925  0.3371  0.0166  0.3397  1.0000
       7  0.8922  0.3329  0.0157  0.3346  0.9773
       8  0.8932  0.3297  0.0156  0.3319  0.9594
+      9  0.8938  0.3258  0.0150  0.3274  0.9445
+     10  0.8946  0.3228  0.0158  0.3246  0.9344
+     11  0.8939  0.3189  0.0134  0.3214  0.9234
+     12  0.8957  0.3162  0.0137  0.3188  0.9141
+     13  0.8950  0.3151  0.0136  0.3175  0.9094
+     14  0.8955  0.3141  0.0129  0.3148  0.8992
+     15  0.8965  0.3125  0.0109  0.3137  0.8937
+     16  0.8972  0.3116  0.0117  0.3123  0.8891
 
