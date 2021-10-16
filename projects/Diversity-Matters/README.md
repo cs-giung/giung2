@@ -17,29 +17,42 @@ To train BE-4 students with WRN28x10 on CIFAR-100, run the following commands:
 python ./scripts/train_student.py --config-file ./configs/C100_WRN28x10_BE4.yaml \
                                   --kd-teacher-config-file ./configs/C100_WRN28x10_SGD.yaml \
                                   --kd-teacher-weight-file ./outputs/C100_WRN28x10_SGD_0/best_acc1.pth.tar \
-                                  --kd-alpha 0.9 --kd-temperature 4.0 \
+                                  --kd-alpha 0.9 --kd-temperature 1.0 \
                                   OUTPUT_DIR ./outputs/C100_WRN28x10_BE4_KD_0/
 
 python ./scripts/train_student.py --config-file ./configs/C100_WRN28x10_BE4.yaml \
                                   --kd-teacher-config-file ./configs/C100_WRN28x10_SGD.yaml \
                                   --kd-teacher-weight-file ./outputs/C100_WRN28x10_SGD_0/best_acc1.pth.tar \
-                                  --kd-alpha 0.9 --kd-temperature 4.0 --kd-method-name gaussian \
+                                  --kd-alpha 0.9 --kd-temperature 1.0 --kd-method-name gaussian \
                                   OUTPUT_DIR ./outputs/C100_WRN28x10_BE4_KDGaussian_0/
 
 python ./scripts/train_student.py --config-file ./configs/C100_WRN28x10_BE4.yaml \
                                   --kd-teacher-config-file ./configs/C100_WRN28x10_SGD.yaml \
                                   --kd-teacher-weight-file ./outputs/C100_WRN28x10_SGD_0/best_acc1.pth.tar \
-                                  --kd-alpha 0.9 --kd-temperature 4.0 --kd-method-name ods_l2 \
+                                  --kd-alpha 0.9 --kd-temperature 1.0 --kd-method-name ods_l2 \
                                   OUTPUT_DIR ./outputs/C100_WRN28x10_BE4_KDODS_0/
 
 python ./scripts/train_student.py --config-file ./configs/C100_WRN28x10_BE4.yaml \
                                   --kd-teacher-config-file ./configs/C100_WRN28x10_SGD.yaml \
                                   --kd-teacher-weight-file ./outputs/C100_WRN28x10_SGD_0/best_acc1.pth.tar \
-                                  --kd-alpha 0.9 --kd-temperature 4.0 --kd-method-name c_ods_l2 \
+                                  --kd-alpha 0.9 --kd-temperature 1.0 --kd-method-name c_ods_l2 \
                                   OUTPUT_DIR ./outputs/C100_WRN28x10_BE4_KDConfODS_0/
 ```
 
 ## Evaluation
+
+[`./scripts/evaluation.ipynb`](./scripts/evaluation.ipynb) includes evaluation of WRN28x10 on CIFAR-100, and here are the results:
+```
+Label                         ACC    NLL     BS    ECE    cNLL    cBS    cECE
+--------------------------  -----  -----  -----  -----  ------  -----  ------
+DeepEns-1                   
+DeepEns-2                   
+DeepEns-3                   
+DeepEns-4                   
+BatchEns-4 (KD)             
+BatchEns-4 (KD + ODS)       
+BatchEns-4 (KD + Gaussian)  
+```
 
 ## Citation
 
