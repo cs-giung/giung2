@@ -100,3 +100,8 @@ class Linear_Dropout(Linear):
             r = self._get_masks(x)
             x = r * x / (1.0 - self.drop_p)
         return super().forward(x, **kwargs)
+
+    def extra_repr(self) -> str:
+        return 'in_features={}, out_features={}, bias={}, drop_p={}'.format(
+            self.in_features, self.out_features, self.bias is not None, self.drop_p
+        )

@@ -123,6 +123,23 @@ class Conv2d_Dropout(Conv2d):
             x = r * x / (1.0 - self.drop_p)
         return super().forward(x, **kwargs)
 
+    def extra_repr(self):
+        s = ('{in_channels}, {out_channels}, kernel_size={kernel_size}'
+             ', stride={stride}, drop_p={drop_p}')
+        if self.padding != (0,) * len(self.padding):
+            s += ', padding={padding}'
+        if self.dilation != (1,) * len(self.dilation):
+            s += ', dilation={dilation}'
+        if self.output_padding != (0,) * len(self.output_padding):
+            s += ', output_padding={output_padding}'
+        if self.groups != 1:
+            s += ', groups={groups}'
+        if self.bias is None:
+            s += ', bias=False'
+        if self.padding_mode != 'zeros':
+            s += ', padding_mode={padding_mode}'
+        return s.format(**self.__dict__)
+
 
 class Conv2d_SpatialDropout(Conv2d):
     
@@ -142,6 +159,23 @@ class Conv2d_SpatialDropout(Conv2d):
             r = self._get_masks(x)
             x = r * x / (1.0 - self.drop_p)
         return super().forward(x, **kwargs)
+
+    def extra_repr(self):
+        s = ('{in_channels}, {out_channels}, kernel_size={kernel_size}'
+             ', stride={stride}, drop_p={drop_p}')
+        if self.padding != (0,) * len(self.padding):
+            s += ', padding={padding}'
+        if self.dilation != (1,) * len(self.dilation):
+            s += ', dilation={dilation}'
+        if self.output_padding != (0,) * len(self.output_padding):
+            s += ', output_padding={output_padding}'
+        if self.groups != 1:
+            s += ', groups={groups}'
+        if self.bias is None:
+            s += ', bias=False'
+        if self.padding_mode != 'zeros':
+            s += ', padding_mode={padding_mode}'
+        return s.format(**self.__dict__)
 
 
 class Conv2d_DropBlock(Conv2d):
@@ -187,3 +221,21 @@ class Conv2d_DropBlock(Conv2d):
             r = self._get_masks(x)
             x = r * x * r.numel() / r.sum()
         return super().forward(x, **kwargs)
+
+    def extra_repr(self):
+        s = ('{in_channels}, {out_channels}, kernel_size={kernel_size}'
+             ', stride={stride}, drop_p={drop_p}, block_size={block_size}'
+             ', use_shared_masks={use_shared_masks}')
+        if self.padding != (0,) * len(self.padding):
+            s += ', padding={padding}'
+        if self.dilation != (1,) * len(self.dilation):
+            s += ', dilation={dilation}'
+        if self.output_padding != (0,) * len(self.output_padding):
+            s += ', output_padding={output_padding}'
+        if self.groups != 1:
+            s += ', groups={groups}'
+        if self.bias is None:
+            s += ', bias=False'
+        if self.padding_mode != 'zeros':
+            s += ', padding_mode={padding_mode}'
+        return s.format(**self.__dict__)
