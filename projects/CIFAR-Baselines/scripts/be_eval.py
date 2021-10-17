@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     # evaluate standard metrics
     DATA = []
-    for member_idx in tqdm(range(cfg.MODEL.MIMO.ENSEMBLE_SIZE), desc="standard metrics", leave=False):
+    for member_idx in tqdm(range(cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE), desc="standard metrics", leave=False):
         DATA.append([
             f"Member #{member_idx}",
             evaluate_acc(tst_confidences[:, member_idx, :], tst_true_labels),
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # evaluate calibrated metrics
     DATA = []
-    for member_idx in tqdm(range(cfg.MODEL.MIMO.ENSEMBLE_SIZE), desc="calibrated metrics", leave=False):
+    for member_idx in tqdm(range(cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE), desc="calibrated metrics", leave=False):
         t_opt = get_optimal_temperature(
             confidences = val_confidences[:, member_idx, :],
             true_labels = val_true_labels,
