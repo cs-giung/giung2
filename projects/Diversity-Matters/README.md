@@ -45,13 +45,13 @@ python ./scripts/train_student.py --config-file ./configs/C100_WRN28x10_BE4.yaml
 ```
 Label                         ACC    NLL     BS    ECE    cNLL    cBS    cECE
 --------------------------  -----  -----  -----  -----  ------  -----  ------
-DeepEns-1                   
-DeepEns-2                   
-DeepEns-3                   
-DeepEns-4                   
-BatchEns-4 (KD)             
-BatchEns-4 (KD + ODS)       
-BatchEns-4 (KD + Gaussian)  
+DeepEns-1                   80.22  0.789  0.282  0.042   0.789  0.282   0.041
+DeepEns-2                   81.90  0.713  0.261  0.033   0.708  0.260   0.031
+DeepEns-3                   82.46  0.684  0.253  0.032   0.673  0.251   0.027
+DeepEns-4                   82.54  0.670  0.249  0.033   0.655  0.246   0.026
+BatchEns-4 (KD)             80.35  0.818  0.286  0.070   0.787  0.280   0.042
+BatchEns-4 (KD + Gaussian)  80.36  0.837  0.290  0.072   0.802  0.284   0.042
+BatchEns-4 (KD + ODS)       81.84  0.690  0.258  0.028   0.687  0.258   0.031
 ```
 
 ## Citation
