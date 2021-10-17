@@ -76,9 +76,9 @@ class Linear_BatchEnsemble(Linear):
         return s_w_r_x
 
     def extra_repr(self) -> str:
-        return 'in_features={}, out_features={}, bias={}, ensemble_bias={}'.format(
+        return 'in_features={}, out_features={}, bias={}, ensemble_size={}, ensemble_bias={}'.format(
             self.in_features, self.out_features, self.bias is not None,
-            self.ensemble_bias is not None
+            self.ensemble_size, self.ensemble_bias is not None
         )
 
 
