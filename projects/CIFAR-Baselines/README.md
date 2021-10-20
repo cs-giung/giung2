@@ -27,7 +27,6 @@ ln -s ../../datasets/ ./
 | BE-4       | 4     | 0.9318 | 0.2949 | 0.0413 | 0.0704 | 0.0192 | 0.2077 | 0.0060 | 0.1982 | 2.0969 |
 | MIMO-2     | 2     | 0.9155 | 0.2601 | 0.0098 | 0.2547 | 0.2718 | 0.2601 | 0.0102 | 0.2572 | 1.0070 |
 | DUQ        | 1     | 0.9284 | 0.2950 | 0.0359 | 0.1031 | 0.0000 | 0.2535 | 0.0082 | 0.2265 | 1.4297 |
-| DUQ-GP     | 1     | 
 
 ### WRN28x1-BN-ReLU on CIFAR-100
 
@@ -54,14 +53,9 @@ ln -s ../../datasets/ ./
 
 ## Baselines for Bayesian Interpretation
 
-### PR20-FRN-SiLU
+### R20-FRN-SiLU
 
 > All models are trained on the first 40,960 examples of the train split of CIFAR-10; the last 9,040 examples of the train split are used as the validation split. For a clear Bayesian interpretation of the inference procedure, (1) we do not use any data augmentation, and (2) batch normalization is replaced with filter response normalization.
 
 | Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
 | :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
-| SGD        | 1     | 0.8519 | 0.5415 | 0.0802 | 0.2041 | -      | 0.4632 | 0.0199 | 0.4559 | 1.5414 |
-| DE-2       | 2     | 0.8716 | 0.4242 | 0.0313 | 0.2780 | 0.4483 | 0.4053 | 0.0199 | 0.3939 | 1.2617 |
-| DE-4       | 4     | 0.8873 | 0.3536 | 0.0178 | 0.3195 | 0.4576 | 0.3524 | 0.0194 | 0.3539 | 1.0773 |
-| DE-8       | 8     | 0.8932 | 0.3302 | 0.0174 | 0.3505 | 0.4706 | 0.3297 | 0.0156 | 0.3319 | 0.9594 |
-| DE-16      | 16    | 0.8972 | 0.3146 | 0.0218 | 0.3655 | 0.4648 | 0.3116 | 0.0117 | 0.3123 | 0.8891 |
