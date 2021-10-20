@@ -236,6 +236,14 @@ _C.SOLVER.OPTIMIZER.SGD.WEIGHT_DECAY_BE = 0.0000
 _C.SOLVER.OPTIMIZER.SGD.MOMENTUM_BE = 0.9
 _C.SOLVER.OPTIMIZER.SGD.NESTEROV_BE = False
 
+# SGHMC optimizer options
+_C.SOLVER.OPTIMIZER.SGHMC = CfgNode()
+_C.SOLVER.OPTIMIZER.SGHMC.BASE_LR = 0.1
+_C.SOLVER.OPTIMIZER.SGHMC.BASE_LR_SCALE = 1.0 / 45000
+_C.SOLVER.OPTIMIZER.SGHMC.WEIGHT_DECAY = 0.0005
+_C.SOLVER.OPTIMIZER.SGHMC.MOMENTUM_DECAY = 0.9
+_C.SOLVER.OPTIMIZER.SGHMC.TEMPERATURE = 1.0
+
 # ---------------------------------------------------------------------- #
 # Adaptive Gradient Clipping
 # ---------------------------------------------------------------------- #

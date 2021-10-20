@@ -44,6 +44,20 @@ def build_optimizer(cfg: CfgNode, model: nn.Module) -> Optimizer:
                 ignored_params = cfg.SOLVER.OPTIMIZER.AGC.IGNORED_PARAMS,
             )
 
+    elif name == "SGHMC":
+        kwargs = dict()
+
+        # basic options
+        kwargs.update({
+            "BASE_LR"        : cfg.SOLVER.OPTIMIZER.SGHMC.BASE_LR,
+            "BASE_LR_SCALE"  : cfg.SOLVER.OPTIMIZER.SGHMC.BASE_LR_SCALE,
+            "WEIGHT_DECAY"   : cfg.SOLVER.OPTIMIZER.SGHMC.WEIGHT_DECAY,
+            "MOMENTUM_DECAY" : cfg.SOLVER.OPTIMIZER.SGHMC.MOMENTUM_DECAY,
+            "TEMPERATURE"    : cfg.SOLVER.OPTIMIZER.SGHMC.TEMPERATURE,
+        })
+
+        optimizer, params = build_sghmc_optimizer(model, **kwargs)
+
     else:
         raise NotImplementedError(
             f"Unknown cfg.SOLVER.OPTIMIZER.NAME = \"{name}\""
