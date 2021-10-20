@@ -50,7 +50,7 @@ class ProjectionShortcut(nn.Module):
         ) -> None:
         super(ProjectionShortcut, self).__init__()
         self.conv = conv(in_channels=in_planes, out_channels=expansion*planes,
-                         kernel_size=1, stride=stride, padding=0, bias=False, **kwargs)
+                         kernel_size=1, stride=stride, padding=0, **kwargs)
         self.norm = norm(num_features=expansion*planes)
 
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
@@ -74,8 +74,7 @@ class FirstBlock(nn.Module):
         ) -> None:
         super(FirstBlock, self).__init__()
         self.conv1 = conv(in_channels=in_planes, out_channels=planes,
-                          kernel_size=conv_ksp[0], stride=conv_ksp[1], padding=conv_ksp[2],
-                          bias=False, **kwargs)
+                          kernel_size=conv_ksp[0], stride=conv_ksp[1], padding=conv_ksp[2], **kwargs)
         self.norm1 = norm(num_features=planes)
         self.relu1 = relu()
         self.pool1 = pool(kernel_size=pool_ksp[0], stride=pool_ksp[1], padding=pool_ksp[2])
@@ -101,11 +100,11 @@ class BasicBlock(nn.Module):
         ) -> None:
         super(BasicBlock,self).__init__()
         self.conv1 = conv(in_channels=in_planes, out_channels=planes,
-                          kernel_size=3, stride=stride, padding=1, bias=False, **kwargs)
+                          kernel_size=3, stride=stride, padding=1, **kwargs)
         self.norm1 = norm(num_features=planes)
         self.relu1 = relu()
         self.conv2 = conv(in_channels=planes, out_channels=self.expansion*planes,
-                          kernel_size=3, stride=1, padding=1, bias=False, **kwargs)
+                          kernel_size=3, stride=1, padding=1, **kwargs)
         self.norm2 = norm(num_features=self.expansion*planes)
         self.relu2 = relu()
         if stride != 1  or in_planes != self.expansion * planes:
@@ -136,15 +135,15 @@ class Bottleneck(nn.Module):
         ) -> None:
         super(Bottleneck,self).__init__()
         self.conv1 = conv(in_channels=in_planes, out_channels=planes,
-                          kernel_size=1, stride=1, padding=0, bias=False, **kwargs)
+                          kernel_size=1, stride=1, padding=0, **kwargs)
         self.norm1 = norm(num_features=planes)
         self.relu1 = relu()
         self.conv2 = conv(in_channels=planes, out_channels=planes,
-                          kernel_size=3, stride=stride, padding=1, bias=False, **kwargs)
+                          kernel_size=3, stride=stride, padding=1, **kwargs)
         self.norm2 = norm(num_features=planes)
         self.relu2 = relu()
         self.conv3 = conv(in_channels=planes, out_channels=self.expansion*planes,
-                          kernel_size=1, stride=1, padding=0, bias=False, **kwargs)
+                          kernel_size=1, stride=1, padding=0, **kwargs)
         self.norm3 = norm(num_features=self.expansion*planes)
         self.relu3 = relu()
         if stride != 1  or in_planes != self.expansion * planes:
@@ -233,7 +232,9 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
     _conv_layers = cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS
     if _conv_layers == "Conv2d":
         conv_layers = Conv2d
-        kwargs = {}
+        kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        }
     elif _conv_layers == "Conv2d_BatchEnsemble":
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
@@ -241,6 +242,7 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
             )
         conv_layers = Conv2d_BatchEnsemble
         kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
             "ensemble_size": cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE,
             "use_ensemble_bias": cfg.MODEL.BATCH_ENSEMBLE.USE_ENSEMBLE_BIAS,
             "alpha_initializer": {
@@ -259,6 +261,7 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
             )
         conv_layers = Conv2d_Dropout
         kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
             "drop_p": cfg.MODEL.DROPOUT.PROBABILITY,
         }
     elif _conv_layers == "Conv2d_SpatialDropout":
@@ -268,6 +271,7 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
             )
         conv_layers = Conv2d_SpatialDropout
         kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
             "drop_p": cfg.MODEL.SPATIAL_DROPOUT.DROP_PROBABILITY,
         }
     elif _conv_layers == "Conv2d_DropBlock":
@@ -277,6 +281,7 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
             )
         conv_layers = Conv2d_DropBlock
         kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
             "drop_p": cfg.MODEL.DROP_BLOCK.DROP_PROBABILITY,
             "block_size": cfg.MODEL.DROP_BLOCK.BLOCK_SIZE,
             "use_shared_masks": cfg.MODEL.DROP_BLOCK.USE_SHARED_MASKS,
