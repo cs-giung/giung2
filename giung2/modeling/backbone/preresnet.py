@@ -266,6 +266,11 @@ def build_preresnet_backbone(cfg: CfgNode) -> nn.Module:
         kwargs = {
             "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
         }
+    elif _conv_layers == "Conv2dSamePadding":
+        conv_layers = Conv2dSamePadding
+        kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        }
     elif _conv_layers == "Conv2d_BatchEnsemble":
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(

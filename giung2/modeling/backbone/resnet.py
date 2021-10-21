@@ -119,6 +119,7 @@ class BasicBlock(nn.Module):
         out = self.relu2(self.norm2(self.conv2(out, **kwargs), **kwargs) + self.shortcut(x, **kwargs), **kwargs)
         return out
 
+
 class Bottleneck(nn.Module):
     expansion = 4
 
@@ -232,6 +233,11 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
     _conv_layers = cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS
     if _conv_layers == "Conv2d":
         conv_layers = Conv2d
+        kwargs = {
+            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        }
+    elif _conv_layers == "Conv2dSamePadding":
+        conv_layers = Conv2dSamePadding
         kwargs = {
             "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
         }

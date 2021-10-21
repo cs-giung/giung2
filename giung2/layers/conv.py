@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 
@@ -6,6 +7,7 @@ from .utils import initialize_tensor
 
 __all__ = [
     "Conv2d",
+    "Conv2dSamePadding",
     "Conv2d_BatchEnsemble",
     "Conv2d_Dropout",
     "Conv2d_SpatialDropout",
@@ -16,6 +18,26 @@ __all__ = [
 class Conv2d(nn.Conv2d):
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
         return super().forward(x)
+
+
+class Conv2dSamePadding(Conv2d):
+
+    def __init__(self, *args, **kwargs):
+        kwargs["padding"] = 0
+        super().__init__(*args, **kwargs)
+        self.stride = self.stride if len(self.stride) == 2 else [self.stride[0]] * 2
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        ih, iw = x.size()[-2:]
+        kh, kw = self.weight.size()[-2:]
+        sh, sw = self.stride
+        oh, ow = math.ceil(ih / sh), math.ceil(iw / sw)
+        pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
+        pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
+        if pad_h > 0 or pad_w > 0:
+            x = nn.functional.pad(x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
+        return nn.functional.conv2d(x, self.weight, self.bias,
+                                    self.stride, self.padding, self.dilation, self.groups)
 
 
 class Conv2d_BatchEnsemble(Conv2d):
