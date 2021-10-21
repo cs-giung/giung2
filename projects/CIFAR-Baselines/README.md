@@ -57,5 +57,12 @@ ln -s ../../datasets/ ./
 
 > All models are trained on the first 40,960 examples of the train split of CIFAR-10; the last 9,040 examples of the train split are used as the validation split. For a clear Bayesian interpretation of the inference procedure, (1) we do not use any data augmentation, and (2) batch normalization is replaced with filter response normalization.
 
-| Method     | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
-| :-         | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
+| Method           | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
+| :-               | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
+| HMC<sup>1</sup>  | 30    | 0.8998 | 0.3222 | 0.0423 | 0.3919 | 1.0216 |
+|                  | 720   | 
+
+* * *
+
+<sup>1</sup>
+Here, we use HMC samples from [Izmailov et al. (2021)](https://arxiv.org/abs/2104.14421).
