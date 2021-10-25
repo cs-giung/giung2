@@ -27,7 +27,7 @@ class Conv2dSamePadding(Conv2d):
         super().__init__(*args, **kwargs)
         self.stride = self.stride if len(self.stride) == 2 else [self.stride[0]] * 2
 
-    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+    def _pad_input(self, x: torch.Tensor) -> torch.Tensor:
         ih, iw = x.size()[-2:]
         kh, kw = self.weight.size()[-2:]
         sh, sw = self.stride
@@ -36,8 +36,11 @@ class Conv2dSamePadding(Conv2d):
         pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
         if pad_h > 0 or pad_w > 0:
             x = nn.functional.pad(x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
-        return nn.functional.conv2d(x, self.weight, self.bias,
-                                    self.stride, self.padding, self.dilation, self.groups)
+        return x
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        x = self._pad_input(x)
+        return super().forward(x, **kwargs)
 
 
 class Conv2d_BatchEnsemble(Conv2d):
