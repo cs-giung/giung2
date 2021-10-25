@@ -397,6 +397,10 @@ def build_preresnet_backbone(cfg: CfgNode) -> nn.Module:
     # initialize weights
     for m in backbone.modules():
         if isinstance(m, Conv2d):
-            nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+            if isinstance(m.weight, nn.ParameterList):
+                for idx in range(len(m.weight)):
+                    nn.init.kaiming_normal_(m.weight[idx], mode="fan_out", nonlinearity="relu")
+            else:
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
 
     return backbone

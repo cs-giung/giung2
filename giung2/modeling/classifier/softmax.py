@@ -101,6 +101,10 @@ def build_softmax_classifier(cfg: CfgNode) -> nn.Module:
     )
 
     # initialize weights
-    nn.init.kaiming_normal_(classifier.fc.weight, mode="fan_out", nonlinearity="relu")
+    if isinstance(classifier.fc.weight, nn.ParameterList):
+        for idx in range(len(classifier.fc.weight)):
+            nn.init.kaiming_normal_(classifier.fc.weight[idx], mode="fan_out", nonlinearity="relu")
+    else:
+        nn.init.kaiming_normal_(classifier.fc.weight, mode="fan_out", nonlinearity="relu")
 
     return classifier
