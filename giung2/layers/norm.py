@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from typing import Tuple
 from .utils import initialize_tensor
 
 
@@ -8,6 +8,7 @@ __all__ = [
     "BatchNorm2d",
     "GroupNorm2d",
     "FilterResponseNorm2d",
+    "FilterResponseNorm2d_Bezier",
 ]
 
 
@@ -92,3 +93,93 @@ class FilterResponseNorm2d(nn.Module):
         self._check_input_dim(x)
         return self._norm_forward(x, self.gamma_frn, self.beta_frn,
                                   self.tau_frn, self.eps + self.eps_l_frn.abs())
+
+
+class FilterResponseNorm2d_Bezier(FilterResponseNorm2d):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.gamma_frn = nn.ParameterList([self._parameters.pop("gamma_frn", None)])
+        self.beta_frn = nn.ParameterList([self._parameters.pop("beta_frn", None)])
+        self.tau_frn = nn.ParameterList([self._parameters.pop("tau_frn", None)])
+        if "eps_l_frn" in self._parameters:
+            self.eps_l_frn = nn.ParameterList([self._parameters.pop("eps_l_frn", None)])
+
+    @torch.no_grad()
+    def add_param(self) -> None:
+        _p = nn.Parameter(self.gamma_frn[-1].detach().clone())
+        _p.data.copy_(torch.zeros_like(_p) + sum(self.gamma_frn) / len(self.gamma_frn))
+        self.gamma_frn.append(_p)
+        _p = nn.Parameter(self.beta_frn[-1].detach().clone())
+        _p.data.copy_(torch.zeros_like(_p) + sum(self.beta_frn) / len(self.beta_frn))
+        self.beta_frn.append(_p)
+        _p = nn.Parameter(self.tau_frn[-1].detach().clone())
+        _p.data.copy_(torch.zeros_like(_p) + sum(self.tau_frn) / len(self.tau_frn))
+        self.tau_frn.append(_p)
+        if isinstance(self.eps_l_frn, nn.ParameterList):
+            _p = nn.Parameter(self.eps_l_frn[-1].detach().clone())
+            _p.data.copy_(torch.zeros_like(_p) + sum(self.eps_l_frn) / len(self.eps_l_frn))
+            self.eps_l_frn.append(_p)
+
+    def freeze_param(self, index: int) -> None:
+        self.gamma_frn[index].grad = None
+        self.gamma_frn[index].requires_grad = False
+        self.beta_frn[index].grad = None
+        self.beta_frn[index].requires_grad = False
+        self.tau_frn[index].grad = None
+        self.tau_frn[index].requires_grad = False
+        if isinstance(self.eps_l_frn, nn.ParameterList):
+            self.eps_l_frn[index].grad = None
+            self.eps_l_frn[index].requires_grad = False
+
+    def _sample_parameters(self, λ: float) -> Tuple[torch.Tensor]:
+        g = torch.zeros_like(self.gamma_frn[0])
+        b = torch.zeros_like(self.beta_frn[0])
+        t = torch.zeros_like(self.tau_frn[0])
+        e = torch.zeros_like(self.eps_l_frn[0]) if isinstance(self.eps_l_frn, nn.ParameterList) else self.eps_l_frn
+
+        if len(self.gamma_frn) == 1:
+            g += self.gamma_frn[0]
+            b += self.beta_frn[0]
+            t += self.tau_frn[0]
+            if isinstance(self.eps_l_frn, nn.ParameterList):
+                e += self.eps_l_frn[0]
+
+        elif len(self.gamma_frn) == 2:
+            g += (1 - λ) * self.gamma_frn[0]
+            g += λ * self.gamma_frn[1]
+            b += (1 - λ) * self.beta_frn[0]
+            b += λ * self.beta_frn[1]
+            t += (1 - λ) * self.tau_frn[0]
+            t += λ * self.tau_frn[1]
+            if isinstance(self.eps_l_frn, nn.ParameterList):
+                e += (1 - λ) * self.eps_l_frn[0]
+                e += λ * self.eps_l_frn[1]
+
+        elif len(self.gamma_frn) == 3:
+            g += (1 - λ) * (1 - λ) * self.gamma_frn[0]
+            g += 2 * (1 - λ) * λ * self.gamma_frn[1]
+            g += λ * λ * self.gamma_frn[2]
+            b += (1 - λ) * (1 - λ) * self.beta_frn[0]
+            b += 2 * (1 - λ) * λ * self.beta_frn[1]
+            b += λ * λ * self.beta_frn[2]
+            t += (1 - λ) * (1 - λ) * self.tau_frn[0]
+            t += 2 * (1 - λ) * λ * self.tau_frn[1]
+            t += λ * λ * self.tau_frn[2]
+            if isinstance(self.eps_l_frn, nn.ParameterList):
+                e += (1 - λ) * (1 - λ) * self.eps_l_frn[0]
+                e += 2 * (1 - λ) * λ * self.eps_l_frn[1]
+                e += λ * λ * self.eps_l_frn[2]
+
+        else:
+            raise NotImplementedError()
+
+        e = e.abs() + self.eps
+
+        return g, b, t, e
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        self._check_input_dim(x)
+        λ = kwargs.pop("bezier_lambda", None)
+        g, b, t, e = self._sample_parameters(λ)
+        return self._norm_forward(x, g, b, t, e)

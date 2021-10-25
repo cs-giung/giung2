@@ -237,6 +237,8 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
     }
     if _conv_layers == "Conv2d":
         conv_layers = Conv2d
+    elif _conv_layers == "Conv2d_Bezier":
+        conv_layers = Conv2d_Bezier
     elif _conv_layers == "Conv2d_BatchEnsemble":
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
@@ -299,6 +301,8 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
         norm_layers = partial(GroupNorm2d, num_groups=cfg.MODEL.BACKBONE.RESNET.IN_PLANES // 2)
     elif _norm_layers == "FilterResponseNorm2d":
         norm_layers = FilterResponseNorm2d
+    elif _norm_layers == "FilterResponseNorm2d_Bezier":
+        norm_layers = FilterResponseNorm2d_Bezier
     else:
         raise NotImplementedError(
             f"Unknown MODEL.BACKBONE.RESNET.NORM_LAYERS: {_norm_layers}"

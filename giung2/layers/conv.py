@@ -2,11 +2,13 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Tuple
 from .utils import initialize_tensor
 
 
 __all__ = [
     "Conv2d",
+    "Conv2d_Bezier",
     "Conv2d_BatchEnsemble",
     "Conv2d_Dropout",
     "Conv2d_SpatialDropout",
@@ -37,6 +39,80 @@ class Conv2d(nn.Conv2d):
         if self.same_padding:
             x = self._pad_input(x)
         return self._conv_forward(x, self.weight, self.bias)
+
+
+class Conv2d_Bezier(Conv2d):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.weight = nn.ParameterList([self._parameters.pop("weight", None)])
+        if self.bias is not None:
+            self.bias = nn.ParameterList([self._parameters.pop("bias", None)])
+
+    @torch.no_grad()
+    def add_param(self) -> None:
+        _p = nn.Parameter(self.weight[-1].detach().clone())
+        _p.data.copy_(torch.zeros_like(_p) + sum(self.weight) / len(self.weight))
+        self.weight.append(_p)
+        if self.bias is not None:
+            _p = nn.Parameter(self.bias[-1].detach().clone())
+            _p.data.copy_(torch.zeros_like(_p) + sum(self.bias) / len(self.bias))
+            self.bias.append(_p)
+
+    def freeze_param(self, index: int) -> None:
+        self.weight[index].grad = None
+        self.weight[index].requires_grad = False
+        if self.bias is not None:
+            self.bias[index].grad = None
+            self.bias[index].requires_grad = False
+
+    def _sample_parameters(self, λ: float) -> Tuple[torch.Tensor]:
+        w = torch.zeros_like(self.weight[0])
+        b = torch.zeros_like(self.bias[0]) if self.bias is not None else None
+
+        if len(self.weight) == 1:
+            w += self.weight[0]
+            if b is not None:
+                b += self.bias[0]
+
+        elif len(self.weight) == 2:
+            w += (1 - λ) * self.weight[0]
+            w += λ * self.weight[1]
+            if b is not None:
+                b += (1 - λ) * self.bias[0]
+                b += λ * self.bias[1]
+
+        elif len(self.weight) == 3:
+            w += (1 - λ) * (1 - λ) * self.weight[0]
+            w += 2 * (1 - λ) * λ * self.weight[1]
+            w += λ * λ * self.weight[2]
+            if b is not None:
+                b += (1 - λ) * (1 - λ) * self.bias[0]
+                b += 2 * (1 - λ) * λ * self.bias[1]
+                b += λ * λ * self.bias[2]
+
+        else:
+            raise NotImplementedError()
+
+        return w, b
+
+    def _pad_input(self, x: torch.Tensor) -> torch.Tensor:
+        ih, iw = x.size()[-2:]
+        kh, kw = self.weight[0].size()[-2:]
+        sh, sw = self.stride
+        oh, ow = math.ceil(ih / sh), math.ceil(iw / sw)
+        pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
+        pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
+        if pad_h > 0 or pad_w > 0:
+            x = F.pad(x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
+        return x
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        λ = kwargs.pop("bezier_lambda", None)
+        weight, bias = self._sample_parameters(λ)
+        if self.same_padding:
+            x = self._pad_input(x)
+        return self._conv_forward(x, weight, bias)
 
 
 class Conv2d_BatchEnsemble(Conv2d):

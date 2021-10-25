@@ -59,6 +59,9 @@ def build_softmax_classifier(cfg: CfgNode) -> nn.Module:
     if _linear_layers == "Linear":
         linear_layers = Linear
         kwargs = {}
+    elif _linear_layers == "Linear_Bezier":
+        linear_layers = Linear_Bezier
+        kwargs = {}
     elif _linear_layers == "Linear_BatchEnsemble":
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
