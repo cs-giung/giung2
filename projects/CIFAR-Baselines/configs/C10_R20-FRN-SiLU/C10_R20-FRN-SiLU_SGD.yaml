@@ -31,8 +31,9 @@ MODEL:
       SHORTCUT: "ProjectionShortcut"
       NUM_BLOCKS: [3, 3, 3,]
       WIDEN_FACTOR: 1
-      CONV_LAYERS: "Conv2dSamePadding"
+      CONV_LAYERS: "Conv2d"
       CONV_LAYERS_BIAS: True
+      CONV_LAYERS_SAME_PADDING: True
       NORM_LAYERS: "FilterResponseNorm2d"
       ACTIVATIONS: "SiLU"
   CLASSIFIER:

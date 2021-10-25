@@ -1,13 +1,12 @@
 import math
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 from .utils import initialize_tensor
 
 
 __all__ = [
     "Conv2d",
-    "Conv2dSamePadding",
     "Conv2d_BatchEnsemble",
     "Conv2d_Dropout",
     "Conv2d_SpatialDropout",
@@ -16,16 +15,12 @@ __all__ = [
 
 
 class Conv2d(nn.Conv2d):
-    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
-        return super().forward(x)
-
-
-class Conv2dSamePadding(Conv2d):
-
+    
     def __init__(self, *args, **kwargs):
-        kwargs["padding"] = 0
+        self.same_padding = kwargs.pop("same_padding", False)
+        if self.same_padding:
+            kwargs["padding"] = 0
         super().__init__(*args, **kwargs)
-        self.stride = self.stride if len(self.stride) == 2 else [self.stride[0]] * 2
 
     def _pad_input(self, x: torch.Tensor) -> torch.Tensor:
         ih, iw = x.size()[-2:]
@@ -35,12 +30,13 @@ class Conv2dSamePadding(Conv2d):
         pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
         pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
         if pad_h > 0 or pad_w > 0:
-            x = nn.functional.pad(x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
+            x = F.pad(x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2])
         return x
 
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
-        x = self._pad_input(x)
-        return super().forward(x, **kwargs)
+        if self.same_padding:
+            x = self._pad_input(x)
+        return self._conv_forward(x, self.weight, self.bias)
 
 
 class Conv2d_BatchEnsemble(Conv2d):
@@ -91,8 +87,9 @@ class Conv2d_BatchEnsemble(Conv2d):
         r_x = r_x * self.alpha_be.view(self.ensemble_size, 1, C1, 1, 1)
         r_x = r_x.view(-1, C1, H1, W1)
 
-        w_r_x = nn.functional.conv2d(r_x, self.weight, self.bias, self.stride,
-                                     self.padding, self.dilation, self.groups)
+        if self.same_padding:
+            r_x = self._pad_input(r_x)
+        w_r_x = self._conv_forward(r_x, self.weight, self.bias)
 
         _, C2, H2, W2 = w_r_x.size()
         s_w_r_x = w_r_x.view(self.ensemble_size, -1, C2, H2, W2)

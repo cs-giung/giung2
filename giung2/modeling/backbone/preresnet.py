@@ -261,24 +261,19 @@ def build_preresnet_backbone(cfg: CfgNode) -> nn.Module:
 
     # Conv2d layers may be replaced by its variations
     _conv_layers = cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS
+    kwargs = {
+        "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        "same_padding": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_SAME_PADDING,
+    }
     if _conv_layers == "Conv2d":
         conv_layers = Conv2d
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
-        }
-    elif _conv_layers == "Conv2dSamePadding":
-        conv_layers = Conv2dSamePadding
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
-        }
     elif _conv_layers == "Conv2d_BatchEnsemble":
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.BATCH_ENSEMBLE.ENABLED=True to use {_conv_layers}"
             )
         conv_layers = Conv2d_BatchEnsemble
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        kwargs.update({
             "ensemble_size": cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE,
             "use_ensemble_bias": cfg.MODEL.BATCH_ENSEMBLE.USE_ENSEMBLE_BIAS,
             "alpha_initializer": {
@@ -289,39 +284,36 @@ def build_preresnet_backbone(cfg: CfgNode) -> nn.Module:
                 "initializer": cfg.MODEL.BATCH_ENSEMBLE.GAMMA_INITIALIZER.NAME,
                 "init_values": cfg.MODEL.BATCH_ENSEMBLE.GAMMA_INITIALIZER.VALUES,
             },
-        }
+        })
     elif _conv_layers == "Conv2d_Dropout":
         if cfg.MODEL.DROPOUT.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.DROPOUT.ENABLED=True to use {_conv_layers}"
             )
         conv_layers = Conv2d_Dropout
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        kwargs.update({
             "drop_p": cfg.MODEL.DROPOUT.DROP_PROBABILITY,
-        }
+        })
     elif _conv_layers == "Conv2d_SpatialDropout":
         if cfg.MODEL.SPATIAL_DROPOUT.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.SPATIAL_DROPOUT.ENABLED=True to use {_conv_layers}"
             )
         conv_layers = Conv2d_SpatialDropout
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        kwargs.update({
             "drop_p": cfg.MODEL.SPATIAL_DROPOUT.DROP_PROBABILITY,
-        }
+        })
     elif _conv_layers == "Conv2d_DropBlock":
         if cfg.MODEL.DROP_BLOCK.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.DROP_BLOCK.ENABLED=True to use {_conv_layers}"
             )
         conv_layers = Conv2d_DropBlock
-        kwargs = {
-            "bias": cfg.MODEL.BACKBONE.RESNET.CONV_LAYERS_BIAS,
+        kwargs.update({
             "drop_p": cfg.MODEL.DROP_BLOCK.DROP_PROBABILITY,
             "block_size": cfg.MODEL.DROP_BLOCK.BLOCK_SIZE,
             "use_shared_masks": cfg.MODEL.DROP_BLOCK.USE_SHARED_MASKS,
-        }
+        })
     else:
         raise NotImplementedError(
             f"Unknown MODEL.BACKBONE.RESNET.CONV_LAYERS: {_conv_layers}"
