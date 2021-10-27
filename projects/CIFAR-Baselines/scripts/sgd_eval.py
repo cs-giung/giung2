@@ -118,7 +118,7 @@ if __name__ == "__main__":
             evaluate_nll(tst_confidences[:, 0:ensemble_size, :].mean(1), tst_true_labels),
             evaluate_ece(tst_confidences[:, 0:ensemble_size, :].mean(1), tst_true_labels),
             compute_ent( tst_confidences[:, 0:ensemble_size, :].mean(1)                 ),
-            compute_kld( tst_confidences[:, 0:ensemble_size, :]                         ),
+            compute_kld( tst_confidences[:, 0:ensemble_size, :]                         ) if ensemble_size <= 10 else 0.0,
         ])
     print("Standard metrics on test examples:")
     print(tabulate(DATA, headers=["# Ens", "ACC", "NLL", "ECE", "ENT", "KLD"], floatfmt=".4f"))
