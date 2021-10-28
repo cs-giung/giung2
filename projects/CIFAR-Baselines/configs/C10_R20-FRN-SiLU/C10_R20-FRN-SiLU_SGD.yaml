@@ -1,5 +1,5 @@
 DATASETS:
-  NAME: "CIFAR10"
+  NAME: "CIFAR10_HMC"
   # SEED: 42 (unused)
   CIFAR:
     SHUFFLE_INDICES: False
