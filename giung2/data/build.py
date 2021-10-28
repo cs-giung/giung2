@@ -26,7 +26,8 @@ def build_dataloaders(
     """
     assert cfg.DATASETS.NAME in [
         "MNIST", "FashionMNIST", "KMNIST",
-        "CIFAR10", "CIFAR100", "TinyImageNet200",
+        "CIFAR10", "CIFAR100", "CIFAR10_HMC",
+        "TinyImageNet200",
         "ImageNet1k",
     ], f"Unknown cfg.DATASETS.NAME = \"{cfg.DATASETS.NAME}\""
 
@@ -53,7 +54,7 @@ def build_dataloaders(
         tst_set = MNIST(root=root, name=cfg.DATASETS.NAME, split="test",  indices=None,        transform=tst_transform)
         val_set = MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=val_indices, transform=tst_transform) if val_indices else tst_set
 
-    elif cfg.DATASETS.NAME in ["CIFAR10", "CIFAR100",]:
+    elif cfg.DATASETS.NAME in ["CIFAR10", "CIFAR100", "CIFAR10_HMC",]:
 
         # set data augmentation strategy
         from .datasets.cifar import DATA_AUGMENTATION
