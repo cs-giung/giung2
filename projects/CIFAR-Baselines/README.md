@@ -58,21 +58,16 @@ ln -s ../../datasets/ ./
 
 ### R20-FRN-SiLU
 
-> All models are trained on the first 40,960 examples of the train split of CIFAR-10; the last 9,040 examples of the train split are used as the validation split. For a clear Bayesian interpretation of the inference procedure, (1) we do not use any data augmentation, and (2) batch normalization is replaced with filter response normalization.
+> All models are trained on the first 40,960 examples of the train split of CIFAR-10-HMC; the last 9,040 examples of the train split are used as the validation split. For a clear Bayesian interpretation of the inference procedure, (1) we do not use any data augmentation, and (2) batch normalization is replaced with filter response normalization.
 
 | Method           | # Ens | ACC    | NLL    | ECE    | ENT    | KLD    | NLL-TS | ECE-TS | ENT-TS | TS     |
 | :-               | :-:   | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    | :-:    |
-| HMC<sup>1</sup>  | 30    | 0.8998 | 0.3222 | 0.0423 | 0.3919 | 1.0216 | -      | -      | -      | -      |
-|                  | 120   | 0.9026 | 0.3114 | 0.0488 | 0.4148 | -      | -      | -      | -      | -      |
-|                  | 720   | 0.9071 | 0.3067 | 0.0592 | 0.4418 | -      | -      | -      | -      | -      |
-| SGD              | 1     | 0.8551 | 0.5609 | 0.0859 | 0.1880 | -      | 0.4763 | 0.0305 | 0.4694 | 1.5219 |
-| DE-2             | 2     | 0.8735 | 0.4337 | 0.0295 | 0.2704 | 0.4967 | 0.4122 | 0.0213 | 0.4026 | 1.2703 |
-| DE-4             | 4     | 0.8826 | 0.3722 | 0.0149 | 0.3163 | 0.4803 | 0.3694 | 0.0184 | 0.3552 | 1.0828 |
-| DE-8             | 8     | 0.8884 | 0.3464 | 0.0134 | 0.3467 | 0.4859 | 0.3465 | 0.0121 | 0.3355 | 0.9766 |
-| DE-16            | 16    | 0.8907 | 0.3284 | 0.0179 | 0.3648 | 0.4889 | 0.3270 | 0.0104 | 0.3216 | 0.9133 |
-| DE-128           | 128   | 0.8949 | 0.3175 | 0.0227 | 0.3829 | 0.4932 | 0.3130 | 0.0070 | 0.3079 | 0.8578 |
-| Dropout          | 1     | 0.8726 | 0.4591 | 0.0716 | 0.1668 | -      | 0.3926 | 0.0215 | 0.3866 | 1.5203 |
-| MC-Dropout       | 30    | 0.8748 | 0.3615 | 0.0067 | 0.3542 | 0.3201 | 0.3615 | 0.0058 | 0.3586 | 1.0086 |
+| HMC<sup>1</sup>  | 30    | 0.8998 | 0.3222 | 0.0423 | 0.3919 | 1.0216 | 0.3160 | 0.0103 | 0.2941 | 0.7719 |
+|                  | 120   | 0.9026 | 0.3114 | 0.0488 | 0.4148 | N/A    | 0.2980 | 0.0109 | 0.2750 | 0.7109 |
+|                  | 720   | 0.9071 | 0.3067 | 0.0592 | 0.4418 | N/A    | 0.2841 | 0.0057 | 0.2669 | 0.6727 |
+| SGD              | 1     | 0.8477 | 0.5855 | 0.0899 | 0.1980 | -      | 0.4974 | 0.0296 | 0.4876 | 1.5203 |
+| DE-2             | 2     | 0.8670 | 0.4446 | 0.0329 | 0.2734 | 0.4830 | 0.4212 | 0.0180 | 0.4115 | 1.2820 |
+| DE-4             | 4     | 0.8822 | 0.3762 | 0.0175 | 0.3206 | 0.4848 | 0.3735 | 0.0195 | 0.3582 | 1.0797 |
 
 * * *
 
