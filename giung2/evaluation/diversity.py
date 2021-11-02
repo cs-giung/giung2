@@ -9,7 +9,13 @@ __all__ = [
 
 @torch.no_grad()
 def compute_ent(confidences: torch.Tensor) -> float:
-
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, K] of predicted confidences.
+    
+    Returns:
+        ent (float): average entropy of predictions.
+    """
     ent = -torch.sum(
         confidences * torch.log(1e-12 + confidences), dim=1
     ).mean().item()
@@ -19,7 +25,13 @@ def compute_ent(confidences: torch.Tensor) -> float:
 
 @torch.no_grad()
 def compute_kld(confidences: torch.Tensor) -> float:
-
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, M, K] of predicted confidences.
+    
+    Returns:
+        kld (float): average KL divergence of ensembled predictions.
+    """
     ensemble_size = confidences.size(1)
     if ensemble_size == 1:
         return 0.0
