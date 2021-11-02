@@ -13,7 +13,15 @@ __all__ = [
 def evaluate_ece(confidences: torch.Tensor,
                  true_labels: torch.Tensor,
                  n_bins: int = 15) -> float:
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, K] of predicted confidences.
+        true_labels (Tensor): a tensor of shape [N,] of ground truth labels.
+        n_bins (int): the number of bins used by the histrogram binning.
 
+    Returns:
+        ece (float): expected calibration error of predictions.
+    """
     # predicted labels and its confidences
     pred_confidences, pred_labels = torch.max(confidences, dim=1)
 
@@ -53,7 +61,15 @@ def evaluate_ece(confidences: torch.Tensor,
 def evaluate_sce(confidences: torch.Tensor,
                  true_labels: torch.Tensor,
                  n_bins: int = 15) -> float:
-
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, K] of predicted confidences.
+        true_labels (Tensor): a tensor of shape [N,] of ground truth labels.
+        n_bins (int): the number of bins used by the histrogram binning.
+    
+    Returns:
+        sce (float): static calibration error of predictions.
+    """
     ticks = torch.linspace(0, 1, n_bins + 1)
     bin_lowers = ticks[:-1]
     bin_uppers = ticks[ 1:]
@@ -87,7 +103,16 @@ def evaluate_tace(confidences: torch.Tensor,
                   true_labels: torch.Tensor,
                   n_bins: int = 15,
                   threshold: float = 1e-3) -> float:
-
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, K] of predicted confidences.
+        true_labels (Tensor): a tensor of shape [N,] of ground truth labels.
+        n_bins (int): the number of bins used by the histrogram binning.
+        threshold (float): the value for thresholding to avoid tiny predictions.
+    
+    Returns:
+        tace (float): thresholded adaptive calibration error of predictions.
+    """
     n_objects, n_classes = confidences.size()
 
     tace = torch.zeros(1, device=confidences.device)
@@ -121,7 +146,15 @@ def evaluate_tace(confidences: torch.Tensor,
 def evaluate_ace(confidences: torch.Tensor,
                  true_labels: torch.Tensor,
                  n_bins: int = 15) -> float:
-
+    """
+    Args:
+        confidences (Tensor): a tensor of shape [N, K] of predicted confidences.
+        true_labels (Tensor): a tensor of shape [N,] of ground truth labels.
+        n_bins (int): the number of bins used by the histrogram binning.
+    
+    Returns:
+        ace (float): adaptive calibration error of predictions.
+    """
     ace = evaluate_tace(
         confidences, true_labels,
         n_bins=n_bins, threshold=0.0
