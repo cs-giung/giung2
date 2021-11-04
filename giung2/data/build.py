@@ -70,10 +70,11 @@ def build_dataloaders(
         val_indices = indices[cfg.DATASETS.CIFAR.VALID_INDICES[0] : cfg.DATASETS.CIFAR.VALID_INDICES[1]]
 
         # get datasets
-        dataset = CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=trn_transform)
-        trn_set = CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=tst_transform)
-        tst_set = CIFAR(root=root, name=cfg.DATASETS.NAME, split="test",  indices=None,        transform=tst_transform)
-        val_set = CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=val_indices, transform=tst_transform) if val_indices else tst_set
+        _CIFAR = FastCIFAR if cfg.DATASETS.CIFAR.DATA_AUGMENTATION == "None" else CIFAR
+        dataset = _CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=trn_transform)
+        trn_set = _CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=tst_transform)
+        tst_set = _CIFAR(root=root, name=cfg.DATASETS.NAME, split="test",  indices=None,        transform=tst_transform)
+        val_set = _CIFAR(root=root, name=cfg.DATASETS.NAME, split="train", indices=val_indices, transform=tst_transform) if val_indices else tst_set
 
     elif cfg.DATASETS.NAME in ["TinyImageNet200",]:
 

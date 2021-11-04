@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import torch
 import torchvision
 from PIL import Image
 from itertools import chain
@@ -8,7 +9,7 @@ from typing import Any, Callable, List, Optional, Tuple
 
 
 __all__ = [
-    "CIFAR",
+    "CIFAR", "FastCIFAR",
 ]
 
 
@@ -75,3 +76,13 @@ class CIFAR(torchvision.datasets.VisionDataset):
             )
         ]
         return tabulate(DATA, headers=["Class", "# Examples",] * NUM_COL)
+
+
+class FastCIFAR(CIFAR):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.images_ = torch.Tensor(self.images).permute(0, 3, 1, 2).float().div_(255)
+
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        return self.images_[index], self.labels[index]
