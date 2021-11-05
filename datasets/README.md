@@ -2,8 +2,14 @@
 
 ### MNIST
 ```
-wget https://www.dropbox.com/s/ylg8jf49xcwql66/MNIST.tar.gz
+wget https://www.dropbox.com/s/y18xf25kyna3u50/MNIST.tar.gz
 tar -xvzf MNIST.tar.gz
+```
+
+### KMNIST
+```
+wget https://www.dropbox.com/s/crdkhcfs9jfs3m3/KMNIST.tar.gz
+tar -xvzf KMNIST.tar.gz
 ```
 
 ### FashionMNIST
