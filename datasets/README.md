@@ -1,35 +1,31 @@
 # Builtin Datasets
 
-## CIFAR
+### MNIST
+```
+wget https://www.dropbox.com/s/ylg8jf49xcwql66/MNIST.tar.gz
+tar -xvzf MNIST.tar.gz
+```
 
-### CIFAR-10
+### FashionMNIST
+```
+wget https://www.dropbox.com/s/nlbxznph3mc3se2/FashionMNIST.tar.gz
+tar -xvzf FashionMNIST.tar.gz
+```
 
-#### Download
+### CIFAR10
 ```
 wget https://www.dropbox.com/s/3w9srxvvos3xaj3/CIFAR10.tar.gz
+tar -xvzf CIFAR10.tar.gz
 ```
 
-#### Directory
+### CIFAR10_HMC
 ```
-CIFAR10/
-  test_images.npy
-  test_labels.npy
-  train_images.npy
-  train_labels.npy
+wget https://www.dropbox.com/s/8s5unpaxdrt6r7e/CIFAR10_HMC.tar.gz
+tar -xvzf CIFAR10_HMC.tar.gz
 ```
 
-### CIFAR-100
-
-#### Download
+### CIFAR100
 ```
 wget https://www.dropbox.com/s/wra2ol0rzq4twjh/CIFAR100.tar.gz
-```
-
-#### Directory
-```
-CIFAR100/
-  test_images.npy
-  test_labels.npy
-  train_images.npy
-  train_labels.npy
+tar -xvzf CIFAR100.tar.gz
 ```
