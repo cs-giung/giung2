@@ -15,7 +15,7 @@ __all__ = [
 DATA_AUGMENTATION = {
     "NONE": torchvision.transforms.ToTensor(),
     "STANDARD_TRAIN_TRANSFORM": torchvision.transforms.Compose([
-        torchvision.transforms.RandomCrop(64, 8),
+        torchvision.transforms.RandomCrop(64, 4),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor(),
     ]),
