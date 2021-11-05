@@ -49,10 +49,11 @@ def build_dataloaders(
         val_indices = indices[cfg.DATASETS.MNIST.VALID_INDICES[0] : cfg.DATASETS.MNIST.VALID_INDICES[1]]
 
         # get datasets
-        dataset = MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=trn_transform)
-        trn_set = MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=tst_transform)
-        tst_set = MNIST(root=root, name=cfg.DATASETS.NAME, split="test",  indices=None,        transform=tst_transform)
-        val_set = MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=val_indices, transform=tst_transform) if val_indices else tst_set
+        _MNIST = FastMNIST if cfg.DATASETS.MNIST.DATA_AUGMENTATION == "None" else MNIST
+        dataset = _MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=trn_transform)
+        trn_set = _MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=trn_indices, transform=tst_transform)
+        tst_set = _MNIST(root=root, name=cfg.DATASETS.NAME, split="test",  indices=None,        transform=tst_transform)
+        val_set = _MNIST(root=root, name=cfg.DATASETS.NAME, split="train", indices=val_indices, transform=tst_transform) if val_indices else tst_set
 
     elif cfg.DATASETS.NAME in ["CIFAR10", "CIFAR100", "CIFAR10_HMC",]:
 
