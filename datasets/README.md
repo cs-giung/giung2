@@ -1,5 +1,14 @@
 # Builtin Datasets
 
+## Preview
+
+```
+python preview.py
+```
+![](./preview.png)
+
+## Download
+
 ### MNIST
 ```
 wget https://www.dropbox.com/s/y18xf25kyna3u50/MNIST.tar.gz
