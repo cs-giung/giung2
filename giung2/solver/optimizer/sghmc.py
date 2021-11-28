@@ -10,8 +10,23 @@ __all__ = [
 
 
 class SGHMC(Optimizer):
-
-    def __init__(self, params, lr, alpha=0.9, lr_scale=1.0, weight_decay=0.0, temperature=1.0) -> None:
+    """Stochastic Gradient Hamiltonian Monte Carlo (SGHMC)
+    
+    Args:
+        params (iterable):
+            iterable of parameters to optimize or dicts defining parameter groups
+        lr (float):
+            learning rate
+        alpha (float, optional):
+            momentum decay factor; alpha=1 is equivalent to SGLD (default: 0.1)
+        lr_scale (float, optional):
+            scaling factor for numerical stability (default: 1.0)
+        weight_decay (float, optional):
+            weight decay (L2 penalty) (default: 0.0)
+        temperature (float, optional):
+            temperature in the posterior (default: 1.0)
+    """
+    def __init__(self, params, lr, alpha=0.1, lr_scale=1.0, weight_decay=0.0, temperature=1.0) -> None:
         if lr < 0.0:
             raise ValueError("Invalid lr value: {}".format(lr))
         if alpha < 0.0:
@@ -27,36 +42,59 @@ class SGHMC(Optimizer):
                         weight_decay=weight_decay, temperature=temperature)
         super().__init__(params, defaults)
 
+    @torch.no_grad()
     def step(self, closure=None, noise=True):
         loss = None
 
         if closure is not None:
-            loss = closure()
+            with torch.enable_grad():
+                loss = closure()
 
         for group in self.param_groups:
-            params       = group["params"]
-            params_buf   = [torch.zeros_like(p) for p in params]
             lr           = group["lr"]
             alpha        = group["alpha"]
             lr_scale     = group["lr_scale"]
             weight_decay = group["weight_decay"]
             temperature  = group["temperature"]
 
-            for idx, p in enumerate(params):
+            # target parameters which need to be updated
+            params_with_grad     = []
+            d_p_list             = []
+            momentum_buffer_list = []
+            for p in group["params"]:
+                if p.grad is not None:
+                    params_with_grad.append(p)
+                    d_p_list.append(p.grad)
+                    
+                    state = self.state[p]
+                    if "momentum_buffer" not in state:
+                        momentum_buffer_list.append(None)
+                    else:
+                        momentum_buffer_list.append(state["momentum_buffer"])
 
-                if p.grad is None:
-                    continue
+            # update target parameters
+            for i, param in enumerate(params_with_grad):
+                d_p = d_p_list[i]
+                
+                if weight_decay != 0:
+                    d_p = d_p.add(param, alpha=weight_decay)
 
-                d_p = p.grad
-                d_p.add_(p, alpha=weight_decay)
-
-                params_buf[idx] = (1 - alpha) * params_buf[idx] - lr * d_p
+                buf = momentum_buffer_list[i]
+                if buf is None:
+                    buf = torch.clone(d_p).detach()
+                    momentum_buffer_list[i] = buf
+                else:
+                    buf.mul_(1 - alpha).add_(d_p, alpha=-lr)
                 if noise:
-                    params_buf[idx] += (
-                        2.0 * lr * alpha * temperature * lr_scale
-                    ) ** 0.5 * torch.randn_like(p)
+                    buf.add_(
+                        (2.0*lr*alpha*temperature*lr_scale)**0.5 * torch.randn_like(param)
+                    )
+                
+                param.add_(buf)
 
-                p.data.add_(params_buf[idx])
+            for p, momentum_buffer in zip(params_with_grad, momentum_buffer_list):
+                state = self.state[p]
+                state["momentum_buffer"] = momentum_buffer
 
         return loss
 
