@@ -10,7 +10,22 @@ __all__ = [
 
 
 class SGD(Optimizer):
+    """Stochastic Gradient Descent (SGD)
     
+    Args:
+        params (iterable):
+            iterable of parameters to optimize or dicts defining parameter groups
+        lr (float):
+            learning rate
+        momentum (float, optional):
+            momentum factor (default: 0.0)
+        weight_decay (float, optional):
+            weight decay (L2 penalty) (default: 0.0)
+        nesterov (bool, optional):
+            enables Nesterov momentum (default: False)
+        decoupled_weight_decay (bool, optional):
+            enabled decoupled weight decay regularization (default: False)
+    """
     def __init__(self, params, lr, momentum=0, weight_decay=0,
                  nesterov=False, decoupled_weight_decay=False) -> None:
         if lr < 0.0:
