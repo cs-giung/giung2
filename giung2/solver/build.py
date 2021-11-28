@@ -15,20 +15,22 @@ def build_optimizer(cfg: CfgNode, model: nn.Module) -> Optimizer:
 
         # basic options
         kwargs.update({
-            "BASE_LR"      : cfg.SOLVER.OPTIMIZER.SGD.BASE_LR,
-            "WEIGHT_DECAY" : cfg.SOLVER.OPTIMIZER.SGD.WEIGHT_DECAY,
-            "MOMENTUM"     : cfg.SOLVER.OPTIMIZER.SGD.MOMENTUM,
-            "NESTEROV"     : cfg.SOLVER.OPTIMIZER.SGD.NESTEROV,
+            "BASE_LR"               : cfg.SOLVER.OPTIMIZER.SGD.BASE_LR,
+            "WEIGHT_DECAY"          : cfg.SOLVER.OPTIMIZER.SGD.WEIGHT_DECAY,
+            "MOMENTUM"              : cfg.SOLVER.OPTIMIZER.SGD.MOMENTUM,
+            "NESTEROV"              : cfg.SOLVER.OPTIMIZER.SGD.NESTEROV,
+            "DECOUPLED_WEIGHT_DECAY": cfg.SOLVER.OPTIMIZER.SGD.DECOUPLED_WEIGHT_DECAY,
         })
 
         # options for BatchEnsemble
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED:
             kwargs.update({
-                "SUFFIX_BE"       : cfg.SOLVER.OPTIMIZER.SGD.SUFFIX_BE,
-                "BASE_LR_BE"      : cfg.SOLVER.OPTIMIZER.SGD.BASE_LR_BE,
-                "WEIGHT_DECAY_BE" : cfg.SOLVER.OPTIMIZER.SGD.WEIGHT_DECAY_BE,
-                "MOMENTUM_BE"     : cfg.SOLVER.OPTIMIZER.SGD.MOMENTUM_BE,
-                "NESTEROV_BE"     : cfg.SOLVER.OPTIMIZER.SGD.NESTEROV_BE,
+                "SUFFIX_BE"                 : cfg.SOLVER.OPTIMIZER.SGD.SUFFIX_BE,
+                "BASE_LR_BE"                : cfg.SOLVER.OPTIMIZER.SGD.BASE_LR_BE,
+                "WEIGHT_DECAY_BE"           : cfg.SOLVER.OPTIMIZER.SGD.WEIGHT_DECAY_BE,
+                "MOMENTUM_BE"               : cfg.SOLVER.OPTIMIZER.SGD.MOMENTUM_BE,
+                "NESTEROV_BE"               : cfg.SOLVER.OPTIMIZER.SGD.NESTEROV_BE,
+                "DECOUPLED_WEIGHT_DECAY_BE" : cfg.SOLVER.OPTIMIZER.SGD.DECOUPLED_WEIGHT_DECAY_BE,
             })
 
         optimizer, params = build_sgd_optimizer(model, **kwargs)
