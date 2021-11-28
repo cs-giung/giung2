@@ -27,7 +27,7 @@ class SGHMC(Optimizer):
                         weight_decay=weight_decay, temperature=temperature)
         super().__init__(params, defaults)
 
-    def step(self, closure=None):
+    def step(self, closure=None, noise=True):
         loss = None
 
         if closure is not None:
@@ -51,9 +51,10 @@ class SGHMC(Optimizer):
                 d_p.add_(p, alpha=weight_decay)
 
                 params_buf[idx] = (1 - alpha) * params_buf[idx] - lr * d_p
-                params_buf[idx] += (
-                    2.0 * lr * alpha * temperature * lr_scale
-                ) ** 0.5 * torch.randn_like(p)
+                if noise:
+                    params_buf[idx] += (
+                        2.0 * lr * alpha * temperature * lr_scale
+                    ) ** 0.5 * torch.randn_like(p)
 
                 p.data.add_(params_buf[idx])
 
