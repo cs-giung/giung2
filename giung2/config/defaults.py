@@ -248,15 +248,6 @@ _C.SOLVER.OPTIMIZER.SGHMC.WEIGHT_DECAY = 0.0005
 _C.SOLVER.OPTIMIZER.SGHMC.MOMENTUM_DECAY = 0.9
 _C.SOLVER.OPTIMIZER.SGHMC.TEMPERATURE = 1.0
 
-# ---------------------------------------------------------------------- #
-# Adaptive Gradient Clipping
-# ---------------------------------------------------------------------- #
-_C.SOLVER.OPTIMIZER.AGC = CfgNode()
-_C.SOLVER.OPTIMIZER.AGC.ENABLED = False
-_C.SOLVER.OPTIMIZER.AGC.LAMBDA = 0.01
-_C.SOLVER.OPTIMIZER.AGC.EPSILON = 0.001
-_C.SOLVER.OPTIMIZER.AGC.IGNORED_PARAMS = ["classifier.fc",]
-
 # WarmupSimpleCosineLR scheduler options
 _C.SOLVER.SCHEDULER.WARMUP_SIMPLE_COSINE_LR = CfgNode()
 _C.SOLVER.SCHEDULER.WARMUP_SIMPLE_COSINE_LR.WARMUP_EPOCHS = 5
