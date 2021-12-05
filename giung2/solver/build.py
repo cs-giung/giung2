@@ -70,6 +70,18 @@ def build_scheduler(cfg: CfgNode, optimizer: Optimizer) -> _LRScheduler:
         })
         scheduler = build_warmup_simple_cosine_lr(optimizer, **kwargs)
 
+    elif name == "WarmupCyclicalCosineLR":
+        kwargs = dict()
+        kwargs.update({
+            "NUM_EPOCHS"      : cfg.SOLVER.NUM_EPOCHS,
+            "WARMUP_EPOCHS"   : cfg.SOLVER.SCHEDULER.WARMUP_CYCLICAL_COSINE_LR.WARMUP_EPOCHS,
+            "WARMUP_METHOD"   : cfg.SOLVER.SCHEDULER.WARMUP_CYCLICAL_COSINE_LR.WARMUP_METHOD,
+            "WARMUP_FACTOR"   : cfg.SOLVER.SCHEDULER.WARMUP_CYCLICAL_COSINE_LR.WARMUP_FACTOR,
+            "PRETRAIN_EPOCHS" : cfg.SOLVER.SCHEDULER.WARMUP_CYCLICAL_COSINE_LR.PRETRAIN_EPOCHS,
+            "REPEATED_EPOCHS" : cfg.SOLVER.SCHEDULER.WARMUP_CYCLICAL_COSINE_LR.REPEATED_EPOCHS,
+        })
+        scheduler = build_warmup_cyclical_cosine_lr(optimizer, **kwargs)
+
     elif name == "WarmupMultiStepLR":
         kwargs = dict()
         kwargs.update({
