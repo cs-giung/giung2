@@ -11,6 +11,7 @@ NAMES = np.array([
     "CIFAR10_HMC",
     "CIFAR100",
     "TinyImageNet200",
+    "SVHN",
 ])
 
 EXISTS = np.array([os.path.exists(e) for e in NAMES])
