@@ -27,10 +27,8 @@ def GroupNorm2d(
         num_features: int,
         eps: float = 1e-5,
         affine: bool = True,
-        device = None,
-        dtype = None,
     ) -> nn.Module:
-    return _GroupNorm(num_groups, num_features, eps, affine, device, dtype)
+    return _GroupNorm(num_groups, num_features, eps, affine)
 
 
 class FilterResponseNorm2d(nn.Module):
