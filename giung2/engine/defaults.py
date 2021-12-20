@@ -56,16 +56,6 @@ def default_setup(cfg, args, rank=None):
     if rank is None:
         rank = utils.get_rank()
 
-    if rank == 0 and os.path.exists(cfg.OUTPUT_DIR):
-        raise AssertionError(
-            f"Output directory already exsits: {cfg.OUTPUT_DIR}"
-        )
-    utils.synchronize()
-
-    if rank == 0:
-        os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    utils.synchronize()
-
     logger = logging.getLogger("giung2")
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
