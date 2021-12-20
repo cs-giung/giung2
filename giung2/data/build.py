@@ -11,6 +11,8 @@ from giung2.data.datasets import *
 def build_dataloaders(
         cfg: CfgNode,
         root: str = "./datasets/",
+        num_replicas: int = None,
+        rank: int = None,
     ) -> Dict[str, DataLoader]:
     """
     Build the dictionary of dataloaders.
@@ -124,7 +126,7 @@ def build_dataloaders(
         dataset=dataset,
         batch_size=int(cfg.SOLVER.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=False if cfg.NUM_GPUS > 1 else True,
-        sampler=DistributedSampler(dataset) if cfg.NUM_GPUS > 1 else None,
+        sampler=DistributedSampler(dataset, num_replicas, rank) if cfg.NUM_GPUS > 1 else None,
         num_workers=cfg.DATALOADER.NUM_WORKERS,
         pin_memory=cfg.DATALOADER.PIN_MEMORY,
     )
