@@ -44,24 +44,26 @@ def create_ddp_model(
     return ddp
 
 
-def default_setup(cfg, args):
+def default_setup(cfg, args, rank=None):
     """
     Perform some basic common setups at the beginning of a job.
 
     Args:
         cfg (CfgNode)
         args (argparse.NameSpace)
+        rank (int)
     """
-    output_dir = cfg.OUTPUT_DIR
-    if os.path.exists(output_dir):
+    if rank is None:
+        rank = utils.get_rank()
+
+    if rank == 0 and os.path.exists(cfg.OUTPUT_DIR):
         raise AssertionError(
-            f"Output directory already exsits: {output_dir}"
+            f"Output directory already exsits: {cfg.OUTPUT_DIR}"
         )
     utils.synchronize()
 
-    rank = utils.get_rank()
     if rank == 0:
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     utils.synchronize()
 
     logger = logging.getLogger("giung2")
@@ -79,9 +81,9 @@ def default_setup(cfg, args):
         logger.addHandler(sh)
 
     # file logging for all
-    filename = os.path.join(output_dir, "log.txt")
+    filename = os.path.join(cfg.OUTPUT_DIR, "log.txt")
     if rank > 0:
-        filename = os.path.join(output_dir, f"log.txt.rank{rank}")
+        filename = os.path.join(cfg.OUTPUT_DIR, f"log.txt.rank{rank}")
     fh = logging.FileHandler(filename)
     fh.setFormatter(logger_fmt)
     logger.addHandler(fh)
@@ -110,8 +112,8 @@ def default_setup(cfg, args):
     logger.info(log_str)
 
     if utils.get_rank() == 0:
-        path = os.path.join(output_dir, "config.yaml")
-        with open(os.path.join(output_dir, "config.yaml"), "w") as f:
+        path = os.path.join(cfg.OUTPUT_DIR, "config.yaml")
+        with open(os.path.join(cfg.OUTPUT_DIR, "config.yaml"), "w") as f:
             f.write(cfg.dump())
         logger.info("Full config saved to {}".format(path))
 
