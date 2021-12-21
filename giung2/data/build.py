@@ -13,6 +13,7 @@ def build_dataloaders(
         root: str = "./datasets/",
         num_replicas: int = None,
         rank: int = None,
+        is_distributed: bool = False,
     ) -> Dict[str, DataLoader]:
     """
     Build the dictionary of dataloaders.
@@ -126,7 +127,7 @@ def build_dataloaders(
         dataset=dataset,
         batch_size=int(cfg.SOLVER.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=False if cfg.NUM_GPUS > 1 else True,
-        sampler=DistributedSampler(dataset, num_replicas, rank) if cfg.NUM_GPUS > 1 else None,
+        sampler=DistributedSampler(dataset, num_replicas, rank, shuffle=True) if cfg.NUM_GPUS > 1 else None,
         num_workers=cfg.DATALOADER.NUM_WORKERS,
         pin_memory=cfg.DATALOADER.PIN_MEMORY,
     )
@@ -134,7 +135,7 @@ def build_dataloaders(
         dataset=trn_set,
         batch_size=int(cfg.SOLVER.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=False,
-        sampler=None,
+        sampler=DistributedSampler(trn_set, num_replicas, rank, shuffle=False) if is_distributed else None,
         num_workers=cfg.DATALOADER.NUM_WORKERS,
         pin_memory=cfg.DATALOADER.PIN_MEMORY,
     )
@@ -142,7 +143,7 @@ def build_dataloaders(
         dataset=val_set,
         batch_size=int(cfg.SOLVER.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=False,
-        sampler=None,
+        sampler=DistributedSampler(val_set, num_replicas, rank, shuffle=False) if is_distributed else None,
         num_workers=cfg.DATALOADER.NUM_WORKERS,
         pin_memory=cfg.DATALOADER.PIN_MEMORY,
     )
@@ -150,7 +151,7 @@ def build_dataloaders(
         dataset=tst_set,
         batch_size=int(cfg.SOLVER.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=False,
-        sampler=None,
+        sampler=DistributedSampler(tst_set, num_replicas, rank, shuffle=False) if is_distributed else None,
         num_workers=cfg.DATALOADER.NUM_WORKERS,
         pin_memory=cfg.DATALOADER.PIN_MEMORY,
     )
