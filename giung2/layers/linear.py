@@ -9,6 +9,7 @@ __all__ = [
     "Linear",
     "Linear_Bezier",
     "Linear_BatchEnsemble",
+    "Linear_BatchEnsembleV2",
     "Linear_Dropout",
 ]
 
@@ -143,6 +144,30 @@ class Linear_BatchEnsemble(Linear):
             self.in_features, self.out_features, self.bias is not None,
             self.ensemble_size, self.ensemble_bias is not None
         )
+
+
+class Linear_BatchEnsembleV2(Linear_BatchEnsemble):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+
+        _, D1 = x.size()
+        r_x = x.view(self.ensemble_size, -1, D1)
+        r_x = r_x * (1.0 + self.alpha_be.view(self.ensemble_size, 1, D1))
+        r_x = r_x.view(-1, D1)
+
+        w_r_x = nn.functional.linear(r_x, self.weight, self.bias)
+
+        _, D2 = w_r_x.size()
+        s_w_r_x = w_r_x.view(self.ensemble_size, -1, D2)
+        s_w_r_x = s_w_r_x * (1.0 + self.gamma_be.view(self.ensemble_size, 1, D2))
+        if self.ensemble_bias is not None:
+            s_w_r_x = s_w_r_x + self.ensemble_bias.view(self.ensemble_size, 1, D2)
+        s_w_r_x = s_w_r_x.view(-1, D2)
+
+        return s_w_r_x
 
 
 class Linear_Dropout(Linear):

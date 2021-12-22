@@ -239,12 +239,15 @@ def build_resnet_backbone(cfg: CfgNode) -> nn.Module:
         conv_layers = Conv2d
     elif _conv_layers == "Conv2d_Bezier":
         conv_layers = Conv2d_Bezier
-    elif _conv_layers == "Conv2d_BatchEnsemble":
+    elif _conv_layers in ["Conv2d_BatchEnsemble", "Conv2d_BatchEnsembleV2",]:
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.BATCH_ENSEMBLE.ENABLED=True to use {_conv_layers}"
             )
-        conv_layers = Conv2d_BatchEnsemble
+        if _conv_layers == "Conv2d_BatchEnsemble":
+            conv_layers = Conv2d_BatchEnsemble
+        if _conv_layers == "Conv2d_BatchEnsembleV2":
+            conv_layers = Conv2d_BatchEnsembleV2
         kwargs.update({
             "ensemble_size": cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE,
             "use_ensemble_bias": cfg.MODEL.BATCH_ENSEMBLE.USE_ENSEMBLE_BIAS,

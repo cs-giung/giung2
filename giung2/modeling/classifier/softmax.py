@@ -62,12 +62,15 @@ def build_softmax_classifier(cfg: CfgNode) -> nn.Module:
     elif _linear_layers == "Linear_Bezier":
         linear_layers = Linear_Bezier
         kwargs = {}
-    elif _linear_layers == "Linear_BatchEnsemble":
+    elif _linear_layers in ["Linear_BatchEnsemble", "Linear_BatchEnsembleV2",]:
         if cfg.MODEL.BATCH_ENSEMBLE.ENABLED is False:
             raise AssertionError(
                 f"Set MODEL.BATCH_ENSEMBLE.ENABLED=True to use {_linear_layers}"
             )
-        linear_layers = Linear_BatchEnsemble
+        if _linear_layers == "Linear_BatchEnsemble":
+            linear_layers = Linear_BatchEnsemble
+        if _linear_layers == "Linear_BatchEnsembleV2":
+            linear_layers = Linear_BatchEnsembleV2
         kwargs = {
             "ensemble_size": cfg.MODEL.BATCH_ENSEMBLE.ENSEMBLE_SIZE,
             "use_ensemble_bias": cfg.MODEL.BATCH_ENSEMBLE.USE_ENSEMBLE_BIAS,

@@ -10,6 +10,7 @@ __all__ = [
     "Conv2d",
     "Conv2d_Bezier",
     "Conv2d_BatchEnsemble",
+    "Conv2d_BatchEnsembleV2",
     "Conv2d_Dropout",
     "Conv2d_SpatialDropout",
     "Conv2d_DropBlock",
@@ -200,6 +201,32 @@ class Conv2d_BatchEnsemble(Conv2d):
         if self.padding_mode != 'zeros':
             s += ', padding_mode={padding_mode}'
         return s.format(**self.__dict__)
+
+
+class Conv2d_BatchEnsembleV2(Conv2d_BatchEnsemble):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+
+        _, C1, H1, W1 = x.size()
+        r_x = x.view(self.ensemble_size, -1, C1, H1, W1)
+        r_x = r_x * (1.0 + self.alpha_be.view(self.ensemble_size, 1, C1, 1, 1))
+        r_x = r_x.view(-1, C1, H1, W1)
+
+        if self.same_padding:
+            r_x = self._pad_input(r_x)
+        w_r_x = self._conv_forward(r_x, self.weight, self.bias)
+
+        _, C2, H2, W2 = w_r_x.size()
+        s_w_r_x = w_r_x.view(self.ensemble_size, -1, C2, H2, W2)
+        s_w_r_x = s_w_r_x * (1.0 + self.gamma_be.view(self.ensemble_size, 1, C2, 1, 1))
+        if self.ensemble_bias is not None:
+            s_w_r_x = s_w_r_x + self.ensemble_bias.view(self.ensemble_size, 1, C2, 1, 1)
+        s_w_r_x = s_w_r_x.view(-1, C2, H2, W2)
+
+        return s_w_r_x
 
 
 class Conv2d_Dropout(Conv2d):
