@@ -209,6 +209,11 @@ _C.MODEL.CLASSIFIER.DUQ_CLASSIFIER.NUM_CLASSES = 10
 _C.MODEL.CLASSIFIER.DUQ_CLASSIFIER.CENTROID_DIM = 64
 _C.MODEL.CLASSIFIER.DUQ_CLASSIFIER.LENGTH_SCALE = 0.1
 
+# CentroidClassifier options
+_C.MODEL.CLASSIFIER.CENTROID_CLASSIFIER = CfgNode()
+_C.MODEL.CLASSIFIER.CENTROID_CLASSIFIER.FEATURE_DIM = 64
+_C.MODEL.CLASSIFIER.CENTROID_CLASSIFIER.NUM_CLASSES = 10
+
 # ---------------------------------------------------------------------- #
 # Solver
 # ---------------------------------------------------------------------- #

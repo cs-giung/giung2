@@ -29,6 +29,8 @@ def build_classifier(cfg: CfgNode) -> nn.Module:
         classifier = build_softmax_classifier(cfg)
     elif name == "build_duq_classifier":
         classifier = build_duq_classifier(cfg)
+    elif name == "build_centroid_classifier":
+        classifier = build_centroid_classifier(cfg)
     else:
         raise NotImplementedError(
             f"Unknown cfg.MODEL.CLASSIFIER.NAME = \"{name}\""
